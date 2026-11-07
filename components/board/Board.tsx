@@ -59,6 +59,7 @@ export function Board() {
   const pending = useNature((s) => s.pending);
   const badPipe = useNature((s) => s.badPipe);
   const shakeId = useNature((s) => s.shakeId);
+  const alertId = useNature((s) => s.alertId);
   const flashIds = useNature((s) => s.flash);
   const zoom = useNature((s) => s.zoom);
   const pan = useNature((s) => s.pan);
@@ -126,8 +127,9 @@ export function Board() {
       demoFocus: demoFocus.includes(node.id),
       weak: weakByNode.get(node.id) ?? null,
       shaking: shakeId === node.id,
+      alert: alertId === node.id,
     }));
-  }, [board.nodes, ghosts, catalog, comparison, stressNodes, selected, pending, focusedId, shakeId, demoFocus, weakByNode]);
+  }, [board.nodes, ghosts, catalog, comparison, stressNodes, selected, pending, focusedId, shakeId, alertId, demoFocus, weakByNode]);
 
   const pipes: PipeVisual[] = useMemo(() => {
     const byId = new Map(board.nodes.map((n) => [n.id, n]));

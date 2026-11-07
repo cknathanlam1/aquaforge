@@ -93,7 +93,7 @@ export const DEMO_STEPS: DemoStep[] = [
   {
     id: "b",
     title: "Try something that doesn't work",
-    narration: "Pipe a river intake straight into the fab. Raw river water is Tier 1; chips need Tier 5, so the checker stops you and explains why.",
+    narration: "A river intake joins the board, glowing red. Click it to pipe it straight into the fab: raw river water is Tier 1, chips need Tier 5, so the checker stops you and explains why.",
     apply: tryRiverIntoFab,
   },
   {

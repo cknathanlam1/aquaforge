@@ -18,6 +18,8 @@ export interface PieceVisual {
   demoFocus: boolean;
   /** Flagged by engine.weakPoints() (guided step 1). */
   weak: "high" | "medium" | null;
+  /** Guided step 2: glows red with a "!" marker; clicking it opens the constraint popup. */
+  alert: boolean;
 }
 
 interface Badge { text: string; dot: string; bg: string }
@@ -25,6 +27,7 @@ interface Badge { text: string; dot: string; bg: string }
 function badgeFor(v: PieceVisual): Badge | null {
   const { node, info, result } = v;
   if (node.ghost) return { text: "AI suggests", dot: C.orange, bg: C.ghostTile };
+  if (v.alert) return { text: "Click to connect to the fab", dot: C.red, bg: C.redTint };
   if (v.weak) return { text: v.weak === "high" ? "⚠ Weak point" : "⚠ Watch", dot: v.weak === "high" ? C.red : C.orange, bg: v.weak === "high" ? C.redTint : C.ghostTile };
   if (v.atRisk) return { text: "Supply at risk!", dot: C.red, bg: C.redTint };
   if (info.outputTier) {
@@ -66,12 +69,13 @@ export const BoardPiece = memo(function BoardPiece({ geom, v, layer, onPointerDo
   const ringColor = v.pending ? C.orange : v.focused && !v.selected ? "#5980a6" : C.select;
   const status = v.result?.status;
   const label = `${info.name}${node.ghost ? " (AI suggestion)" : ""}${node.existing ? ", existing" : ""}${badge ? `, ${badge.text}` : ""}${status ? `, status ${status}` : ""}`;
-  const cls = [v.shaking ? "anim-shake" : "", node.ghost ? "anim-glow" : ""].join(" ");
+  const cls = [v.shaking ? "anim-shake" : "", node.ghost ? "anim-glow" : "", v.alert ? "anim-alert" : ""].join(" ");
 
   if (layer === "labels") {
     return (
       <g className={v.shaking ? "anim-shake" : undefined} style={{ pointerEvents: "none" }} aria-hidden="true">
         <PieceLabels cx={cx} cy={cy} top={top} symBg={node.ghost ? C.ghostTile : shade(base, 0.7)} sym={art.sym} name={info.name} labelW={labelW} badge={badge} badgeW={badgeW} badgeY={badgeY} />
+        {v.alert && <AlertMarker cx={cx + badgeW / 2 + 22} cy={badgeY + 11} onClick={() => onClick(node)} />}
       </g>
     );
   }
@@ -91,6 +95,9 @@ export const BoardPiece = memo(function BoardPiece({ geom, v, layer, onPointerDo
       onFocus={() => onFocus(node.id)}
       onBlur={() => onFocus(null)}
     >
+      {v.alert && (
+        <polygon points={pts([[cx, cy - TILE_H - 8], [cx + TILE_W + 12, cy], [cx, cy + TILE_H + 8], [cx - TILE_W - 12, cy]])} fill={C.red} fillOpacity={0.18} stroke={C.red} strokeWidth={4} style={{ animation: "pulse 0.9s ease infinite" }} />
+      )}
       {v.weak && (
         <polygon points={pts([[cx, cy - TILE_H - 8], [cx + TILE_W + 12, cy], [cx, cy + TILE_H + 8], [cx - TILE_W - 12, cy]])} fill={v.weak === "high" ? C.red : C.orange} fillOpacity={0.14} stroke={v.weak === "high" ? C.red : C.orange} strokeWidth={4} strokeDasharray="10 6" style={{ animation: "pulse 1.2s ease infinite" }} />
       )}
@@ -109,6 +116,16 @@ export const BoardPiece = memo(function BoardPiece({ geom, v, layer, onPointerDo
     </g>
   );
 });
+
+/** Red "!" bubble above an alerted piece. Clickable even though the label layer ignores pointers. */
+function AlertMarker({ cx, cy, onClick }: { cx: number; cy: number; onClick: () => void }) {
+  return (
+    <g className="anim-bob" style={{ pointerEvents: "auto", cursor: "pointer" }} onClick={onClick} role="presentation">
+      <circle cx={cx} cy={cy} r={15} fill={C.red} stroke={C.ink} strokeWidth={3} />
+      <text x={cx} y={cy + 7} textAnchor="middle" fill="#fff" style={{ font: "800 21px/1 var(--font-body)" }}>!</text>
+    </g>
+  );
+}
 
 interface LabelProps { cx: number; cy: number; top: number; symBg: string; sym: string; name: string; labelW: number; badge: Badge | null; badgeW: number; badgeY: number }
 

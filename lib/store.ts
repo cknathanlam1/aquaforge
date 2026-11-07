@@ -44,6 +44,9 @@ export interface NatureState {
   popupWhy: boolean;
   badPipe: { from: string; to: string } | null;
   shakeId: string | null;
+  /** Guided step 2: a piece glowing red with "!" whose click opens `pendingPopup`. */
+  alertId: string | null;
+  pendingPopup: RuleResult | null;
   flash: string[];
 
   rightTab: RightTab;
@@ -93,6 +96,8 @@ export interface NatureActions {
   movePiece: (id: string, x: number, y: number) => void;
   removePiece: (id: string) => void;
   clickPiece: (id: string) => void;
+  /** Open the held-back constraint popup (guided step 2), with the red shaking pipe. */
+  openPendingPopup: () => void;
   connect: (from: string, to: string) => void;
   closePopup: () => void;
   togglePopupWhy: () => void;
@@ -139,7 +144,7 @@ const firstPreset = engine.presets()[0];
 const noDemo = { demoStep: null, demoFocus: [] as string[], showWeakPoints: false, guided: false };
 
 const transient = {
-  selected: null, pending: null, popup: null, popupWhy: false, badPipe: null, shakeId: null, flash: [] as string[],
+  selected: null, pending: null, popup: null, popupWhy: false, badPipe: null, shakeId: null, alertId: null, pendingPopup: null, flash: [] as string[],
   advisor: null, acceptedCards: [] as string[], previewCard: null, answer: null, detailKey: null,
 };
 
@@ -241,6 +246,7 @@ export const useNature = create<NatureStore>()((set, get) => {
       const s = get();
       const node = s.board.nodes.find((n) => n.id === id);
       if (!node) return;
+      if (s.alertId === id && s.pendingPopup) return get().openPendingPopup();
       if (s.tool === "delete") return get().removePiece(id);
       if (s.tool === "pipe") {
         if (s.pending && s.pending !== id) return get().connect(s.pending, id);
@@ -261,6 +267,13 @@ export const useNature = create<NatureStore>()((set, get) => {
       set({ pending: null, popup: result, popupWhy: false, badPipe: { from, to }, shakeId: to });
       later("shake", SHAKE_MS, () => set({ shakeId: null }));
       later("bad", BAD_PIPE_MS, () => set({ badPipe: null }));
+    },
+    openPendingPopup: () => {
+      const p = get().pendingPopup;
+      if (!p) return;
+      const pipe = p.from && p.to ? { from: p.from, to: p.to } : null;
+      set({ popup: p, popupWhy: false, badPipe: pipe, shakeId: p.to ?? null });
+      later("shake", SHAKE_MS, () => set({ shakeId: null }));
     },
     closePopup: () => set({ popup: null, popupWhy: false, badPipe: null }),
     togglePopupWhy: () => set((s) => ({ popupWhy: !s.popupWhy })),
@@ -371,10 +384,13 @@ export const useNature = create<NatureStore>()((set, get) => {
         leftOpen: true,
         tool: "select",
         rightTab: "impact",
-        popup: d.popup,
+        // A step's popup waits for the user to click the glowing piece it starts from.
+        popup: null,
         popupWhy: false,
-        badPipe: d.popup?.from && d.popup.to ? { from: d.popup.from, to: d.popup.to } : null,
-        shakeId: d.popup?.to ?? null,
+        badPipe: null,
+        shakeId: null,
+        alertId: d.popup?.from ?? null,
+        pendingPopup: d.popup,
         demoStep: step,
         demoFocus: d.focus,
         showWeakPoints: d.showWeakPoints,
@@ -383,7 +399,6 @@ export const useNature = create<NatureStore>()((set, get) => {
         drawerOpen: d.panel === "assumptions",
         drawerFocus: null,
       });
-      if (d.popup) later("shake", SHAKE_MS, () => set({ shakeId: null }));
       // advise() is heavy: run it once, on entering the step that asks for it.
       if (d.runAdvisor) get().runAdvisor();
     },

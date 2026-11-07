@@ -154,6 +154,11 @@ header .nbtn-sm { padding-left: 8px; padding-right: 8px; }
 
 .anim-shake { animation: shake 0.7s ease; }
 .anim-glow { animation: glow 1.2s ease infinite; }
+@keyframes alertGlow { 0%, 100% { filter: drop-shadow(0 0 4px #d6453d); } 50% { filter: drop-shadow(0 0 16px #d6453d); } }
+.anim-alert { animation: alertGlow 0.9s ease infinite; }
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+.anim-bob { animation: bob 0.9s ease infinite; }
+@media (prefers-reduced-motion: reduce) { .anim-alert, .anim-bob { animation: none; } }
 .anim-pop { animation: pop 0.2s ease; }
 
 @media (prefers-reduced-motion: reduce) {
