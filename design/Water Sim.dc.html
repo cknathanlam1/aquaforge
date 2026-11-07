@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/industry-01398652-8aa0-4321-b9b2-ff58e04f248f/styles.css">
+<script src="_ds/industry-01398652-8aa0-4321-b9b2-ff58e04f248f/_ds_bundle.js"></script>
+<style>
+@keyframes flow{to{stroke-dashoffset:-16}}
+@keyframes shake{0%,100%{translate:0 0}20%{translate:-6px 0}40%{translate:6px 0}60%{translate:-5px 0}80%{translate:4px 0}}
+@keyframes glow{0%,100%{filter:drop-shadow(0 0 3px #f08a24)}50%{filter:drop-shadow(0 0 12px #f08a24)}}
+@keyframes pulse{0%,100%{opacity:.25}50%{opacity:.8}}
+@keyframes pop{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+body{margin:0}
+a{color:var(--color-accent-700)}a:hover{color:var(--color-accent-900)}
+</style>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;min-width:1100px">
+  <div style="height:56px;flex:none;display:flex;align-items:center;gap:20px;padding:0 16px;border-bottom:1px solid var(--color-neutral-300,#c9ccd0);background:#fff">
+    <div style="display:flex;align-items:baseline;gap:10px"><span style="font-family:var(--font-heading);font-size:26px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;white-space:nowrap">Campus Water Lab</span><span style="font-size:13px;color:var(--color-neutral-600,#666)">Project: Riverside Chip &amp; Data Campus</span></div>
+    <div style="display:flex;gap:0;margin-left:12px">
+      <sc-for list="{{ scenarios }}" as="s" hint-placeholder-count="3"><button onClick="{{ s.go }}" style="cursor:pointer;font:600 14px var(--font-body);padding:8px 14px;border:1.5px solid #22323f;margin-left:-1.5px;background:{{ s.bg }};color:{{ s.fg }}">{{ s.name }}</button></sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-left:auto">
+      <button onClick="{{ togglePlay }}" style="cursor:pointer;font:700 14px var(--font-body);padding:8px 14px;border:1.5px solid #22323f;background:#fff;min-width:84px">{{ playLabel }}</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;margin-left:12px">Map size <select value="{{ nSize }}" onChange="{{ setN }}" style="border:1.5px solid #22323f;padding:7px;font:600 14px var(--font-body);background:#fff"><option value="6">6 × 6</option><option value="8">8 × 8</option><option value="12">12 × 12</option><option value="16">16 × 16</option></select></label>
+      <button onClick="{{ toggleRules }}" style="cursor:pointer;font:600 14px var(--font-body);padding:8px 14px;border:1.5px solid #22323f;background:#fff">Rules &amp; assumptions</button>
+      <button onClick="{{ reset }}" style="cursor:pointer;font:600 14px var(--font-body);padding:8px 14px;border:1.5px solid #22323f;background:#fff">Reset board</button>
+    </div>
+  </div>
+
+  <div style="flex:1;min-height:0;display:flex">
+    <div style="width:{{ leftW }}px;flex:none;border-right:{{ leftBorder }};background:#fff;overflow:auto;transition:width .2s"><div style="width:264px">
+      <sc-if value="{{ isBuild }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="padding:14px 14px 6px;font:700 13px var(--font-heading);letter-spacing:.14em;color:var(--color-neutral-600,#666)">PIECE PALETTE</div>
+          <sc-for list="{{ cats }}" as="c" hint-placeholder-count="4">
+            <div>
+              <button onClick="{{ c.toggle }}" style="width:100%;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border:0;border-top:1px solid var(--color-neutral-300,#c9ccd0);background:#eef3f6;font:700 15px var(--font-heading);letter-spacing:.08em;text-align:left"><span>{{ c.name }}</span><span>{{ c.chev }}</span></button>
+              <sc-if value="{{ c.open }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:4px 8px 8px">
+                  <sc-for list="{{ c.items }}" as="it" hint-placeholder-count="3">
+                    <button onClick="{{ it.add }}" draggable="{{ it.canDrag }}" onDragStart="{{ it.drag }}" style="width:100%;cursor:pointer;display:flex;align-items:center;gap:10px;padding:5px 6px;border:1.5px solid transparent;background:transparent;text-align:left;font:500 14px var(--font-body);color:var(--color-text)" style-hover="background:#e6f1f7;border-color:#22323f">
+                      <span style="flex:none;width:30px;height:30px;display:flex;align-items:center;justify-content:center;background:{{ it.sbg }};border:1.5px solid #22323f;font:700 18px var(--font-body);color:#22323f">{{ it.sym }}</span>
+                      <span style="flex:1;line-height:1.15">{{ it.name }}</span>
+                      <span style="font:700 11px var(--font-body);color:#fff;background:{{ it.tc }};padding:2px 5px">{{ it.tag }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="padding:10px 14px;font-size:12.5px;color:var(--color-neutral-600,#666);border-top:1px solid var(--color-neutral-300,#c9ccd0)">Click a piece to drop it on the board. Use <b>Pipe</b> on the board toolbar to connect two pieces.</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ isAdvisor }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:14px;display:flex;flex-direction:column;gap:12px">
+          <div style="font:700 13px var(--font-heading);letter-spacing:.14em;color:#b85d05">AI ADVISOR · {{ scenName }}</div>
+          <button onClick="{{ recommend }}" style="cursor:pointer;border:2.5px solid #22323f;background:#f08a24;color:#1d1f20;font:700 20px var(--font-heading);letter-spacing:.04em;padding:14px 10px;box-shadow:0 4px 0 #22323f;text-transform:uppercase">Recommend the best setup</button>
+          <div style="display:flex;gap:0"><input value="{{ draft }}" onChange="{{ onDraft }}" placeholder="How do I cut my water use by 50%?" style="flex:1;min-width:0;border:1.5px solid #22323f;padding:9px 8px;font:14px var(--font-body);background:#fff"><button onClick="{{ ask }}" style="cursor:pointer;border:1.5px solid #22323f;margin-left:-1.5px;background:#22323f;color:#fff;padding:0 12px;font:600 14px var(--font-body)">Ask</button></div>
+          <sc-if value="{{ hasReply }}" hint-placeholder-val="{{ false }}"><div style="border:1.5px solid #f08a24;background:#fff4e6;padding:10px;font-size:14px;line-height:1.4">{{ reply }}</div></sc-if>
+          <sc-for list="{{ recCards }}" as="r" hint-placeholder-count="0">
+            <div class="blueprint" style="position:relative;border:1.5px solid #22323f;background:#fffaf3;padding:12px;display:flex;flex-direction:column;gap:6px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font:700 18px var(--font-heading);letter-spacing:.02em">{{ r.name }}</span><span style="font:700 11px var(--font-body);color:#fff;background:{{ r.tc }};padding:2px 6px">{{ r.tag }}</span></div>
+              <div style="font-size:13.5px;line-height:1.35">{{ r.why }}</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:12px;border-top:1px dashed #e0a867;padding-top:6px"><div><b style="display:block;font-size:14px">{{ r.water }}</b>water</div><div><b style="display:block;font-size:14px">{{ r.money }}</b>per year</div><div><b style="display:block;font-size:14px">{{ r.payback }}</b>payback</div></div>
+              <div style="font-size:12.5px;color:#8a4a05">Tradeoff: {{ r.trade }}</div>
+              <sc-if value="{{ r.showWhy }}" hint-placeholder-val="{{ false }}"><div style="font-size:13px;background:#fff;border:1px solid #e0a867;padding:8px;line-height:1.4">{{ r.whyLong }}</div></sc-if>
+              <div style="display:flex;gap:6px;margin-top:2px">
+                <sc-if value="{{ r.pending }}" hint-placeholder-val="{{ true }}"><button onClick="{{ r.add }}" style="flex:1;cursor:pointer;border:1.5px solid #22323f;background:#f08a24;font:700 13px var(--font-body);padding:7px 4px">Add to board</button></sc-if>
+                <sc-if value="{{ r.done }}" hint-placeholder-val="{{ false }}"><span style="flex:1;border:1.5px solid #2e9e5b;color:#1b6b3b;background:#e6f6ec;font:700 13px var(--font-body);padding:7px 4px;text-align:center">On board ✓</span></sc-if>
+                <button onClick="{{ r.toggleWhy }}" style="cursor:pointer;border:1.5px solid #22323f;background:#fff;font:600 13px var(--font-body);padding:7px 10px">Why this?</button>
+              </div>
+            </div>
+          </sc-for>
+          <sc-if value="{{ hasPending }}" hint-placeholder-val="{{ false }}"><button onClick="{{ addAll }}" style="cursor:pointer;border:2px solid #22323f;background:#f08a24;font:700 15px var(--font-body);padding:10px">Add all ({{ pendingCount }})</button></sc-if>
+        </div>
+      </sc-if>
+      </div>
+    </div>
+
+    <div onDragOver="{{ dragOver }}" onDrop="{{ drop }}" style="flex:1;min-width:0;position:relative;background:#fbf8f2;display:flex;align-items:center;justify-content:center;overflow:hidden">
+      
+
+      <div style="position:absolute;top:12px;left:12px;display:flex;flex-direction:column;gap:6px"><div><button onClick="{{ toggleLeft }}" style="cursor:pointer;font:600 14px var(--font-body);padding:8px 14px;border:2px solid #22323f;background:#fff">{{ leftLabel }}</button></div>
+        <div style="display:flex">
+          <sc-for list="{{ tools }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.go }}" style="cursor:pointer;font:600 14px var(--font-body);padding:8px 14px;border:2px solid #22323f;margin-left:-2px;background:{{ t.bg }};color:{{ t.fg }}">{{ t.name }}</button></sc-for>
+        </div>
+        <div style="font-size:12.5px;color:var(--color-neutral-700,#444);background:#ffffffd9;padding:4px 8px;border:1px solid var(--color-neutral-300,#c9ccd0);max-width:250px">{{ toolHint }}</div>
+      </div>
+
+      <div style="position:absolute;top:12px;right:12px;width:290px;display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ alerts }}" as="a" hint-placeholder-count="0"><div style="display:flex;gap:8px;align-items:flex-start;border:2px solid #22323f;background:{{ a.bg }};padding:7px 9px;font-size:13px;line-height:1.3;box-shadow:0 3px 0 #22323f33"><span style="flex:none;width:18px;height:18px;border-radius:50%;background:{{ a.dot }};color:#fff;font:700 12px/18px var(--font-body);text-align:center">{{ a.icon }}</span><span>{{ a.text }}</span></div></sc-for>
+      </div>
+
+      <div style="position:absolute;right:12px;bottom:12px;display:flex;border:2px solid #22323f;background:#fff"><button onClick="{{ zoomOut }}" style="cursor:pointer;border:0;background:#fff;font:700 18px var(--font-body);width:36px;height:34px">−</button><button onClick="{{ zoomFit }}" style="cursor:pointer;border:0;border-left:1.5px solid #22323f;border-right:1.5px solid #22323f;background:#fff;font:600 13px var(--font-body);width:64px">{{ zoomPct }}</button><button onClick="{{ zoomIn }}" style="cursor:pointer;border:0;background:#fff;font:700 18px var(--font-body);width:36px;height:34px">+</button></div>
+      <div style="position:absolute;left:12px;bottom:12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start">
+                <div style="display:flex;gap:6px;background:#ffffffe6;border:1.5px solid #22323f;padding:6px 8px;align-items:center;flex-wrap:wrap;max-width:520px">
+          <span style="font:700 12px var(--font-heading);letter-spacing:.1em">WATER TIERS</span>
+          <sc-for list="{{ tierLegend }}" as="t" hint-placeholder-count="5"><span style="display:flex;align-items:center;gap:4px;font-size:12px"><i style="width:14px;height:8px;background:{{ t.col }};border:1.5px solid #22323f;display:block"></i>{{ t.name }}</span></sc-for>
+        </div>
+      </div>
+    <svg viewBox="{{ vb }}" preserveAspectRatio="xMidYMid meet" onPointerDown="{{ svgDown }}" onWheel="{{ onWheel }}" style="width:100%;height:100%;display:block;touch-action:none"><g ref="{{ boardRef }}" transform="{{ gTransform }}">
+        <polygon points="{{ slabL }}" fill="#c9b99f" stroke="#22323f" stroke-width="3" stroke-linejoin="round"></polygon>
+        <polygon points="{{ slabR }}" fill="#b8a78c" stroke="#22323f" stroke-width="3" stroke-linejoin="round"></polygon>
+        <polygon points="{{ diamond }}" fill="#f3ecdf" stroke="#22323f" stroke-width="3" stroke-linejoin="round"></polygon>
+        <path d="{{ gridPath }}" stroke="#ddd0ba" stroke-width="1.5" fill="none"></path>
+        <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="0"><polygon points="{{ t.pts }}" fill="transparent" onClick="{{ t.go }}" style="cursor:pointer"></polygon></sc-for>
+        <sc-for list="{{ pipes }}" as="p" hint-placeholder-count="0">
+          <g style="pointer-events:none">
+            <path d="{{ p.d }}" stroke="#22323f" stroke-width="14" fill="none" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="{{ p.d }}" stroke="{{ p.col }}" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="{{ p.dash }}"></path>
+            <sc-if value="{{ p.flow }}" hint-placeholder-val="{{ false }}"><path d="{{ p.d }}" stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="1 15" style="{{ p.dotStyle }}"></path></sc-if>
+            <sc-if value="{{ p.flash }}" hint-placeholder-val="{{ false }}"><path d="{{ p.d }}" stroke="#2e9e5b" stroke-width="18" fill="none" stroke-linecap="round" stroke-linejoin="round" style="animation:pulse .5s ease 3"></path></sc-if>
+            <sc-if value="{{ p.bad }}" hint-placeholder-val="{{ false }}"><g style="animation:pulse .4s ease infinite"><path d="{{ p.d }}" stroke="#d6453d" stroke-width="12" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="10 8"></path></g><circle cx="{{ p.mx }}" cy="{{ p.my }}" r="14" fill="#d6453d" stroke="#22323f" stroke-width="3"></circle><path d="{{ p.xd }}" stroke="#fff" stroke-width="4" stroke-linecap="round"></path></sc-if>
+          </g>
+        </sc-for>
+        <sc-for list="{{ pieces }}" as="p" hint-placeholder-count="0">
+          <g data-pid="{{ p.key }}" onClick="{{ p.click }}" onPointerDown="{{ p.down }}" style="{{ p.gStyle }}">
+            <sc-if value="{{ p.ring }}" hint-placeholder-val="{{ false }}"><polygon points="{{ p.ringPts }}" fill="none" stroke="{{ p.ringCol }}" stroke-width="4" stroke-dasharray="8 6"></polygon></sc-if>
+            <polygon points="{{ p.shadow }}" fill="#22323f" opacity="0.12"></polygon>
+            <sc-for list="{{ p.blocks }}" as="b" hint-placeholder-count="1">
+              <g stroke="{{ p.stroke }}" stroke-width="3.5" stroke-linejoin="round">
+                <polygon points="{{ b.left }}" fill="{{ b.fl }}"></polygon>
+                <polygon points="{{ b.right }}" fill="{{ b.fr }}"></polygon>
+                <polygon points="{{ b.top }}" fill="{{ b.ft }}"></polygon>
+              </g>
+            </sc-for>
+            <foreignObject x="{{ p.sx }}" y="{{ p.sy }}" width="32" height="30" style="pointer-events:none;overflow:visible"><div style="width:32px;height:30px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;background:{{ p.sbg }};border:2.5px solid #22323f;border-radius:8px;font:700 20px/1 var(--font-body);color:#22323f">{{ p.sym }}</div></foreignObject>
+            <foreignObject x="{{ p.lx }}" y="{{ p.ly }}" width="{{ p.lw }}" height="20" style="pointer-events:none;overflow:visible"><div style="width:100%;height:20px;box-sizing:border-box;background:#fff;border:2px solid #22323f;border-radius:10px;text-align:center;font:700 12.5px/16px var(--font-body);white-space:nowrap;color:#1d1f20">{{ p.label }}</div></foreignObject>
+            <sc-if value="{{ p.hasAst }}" hint-placeholder-val="{{ false }}"><g onClick="{{ p.astGo }}" onPointerDown="{{ stopProp }}" style="cursor:pointer"><foreignObject x="{{ p.ax }}" y="{{ p.ay }}" width="110" height="36" style="overflow:visible"><div style="display:flex;align-items:center;gap:3px;height:36px;color:#d6453d;font-weight:800;white-space:nowrap"><span style="font-size:40px;line-height:1;margin-top:10px">*</span><span style="font-size:12px;background:#fff;border:1.5px solid #d6453d;padding:1px 5px">Step {{ p.astText }}</span></div></foreignObject></g></sc-if>
+            <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><foreignObject x="{{ p.bx }}" y="{{ p.by }}" width="{{ p.bw }}" height="22" style="pointer-events:none;overflow:visible"><div style="display:flex;align-items:center;gap:6px;box-sizing:border-box;height:22px;padding:0 8px;background:{{ p.bbg }};border:2px solid #22323f;border-radius:11px;font:700 12px/1 var(--font-body);white-space:nowrap;color:#1d1f20"><span style="flex:none;width:11px;height:11px;border-radius:50%;background:{{ p.tcol }};border:1.5px solid #22323f"></span>{{ p.btext }}</div></foreignObject></sc-if>
+          </g>
+        </sc-for>
+      </g></svg></div>
+
+    <div style="width:322px;flex:none;border-left:1px solid var(--color-neutral-300,#c9ccd0);background:#fff;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="2"><button onClick="{{ t.go }}" style="flex:1;cursor:pointer;font:700 14px var(--font-body);padding:8px 4px;border:1.5px solid #22323f;margin-left:-1.5px;background:{{ t.bg }};color:{{ t.fg }}">{{ t.name }}</button></sc-for></div>
+      <sc-if value="{{ isDash }}" hint-placeholder-val="{{ true }}"><div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:700 13px var(--font-heading);letter-spacing:.14em;color:var(--color-neutral-600,#666)">IMPACT DASHBOARD · TAP A CARD FOR DETAILS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div onClick="{{ m.openWater }}" class="blueprint" style="position:relative;border:1.5px solid #22323f;padding:10px;cursor:pointer" style-hover="background:#f1f7fa"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><div style="font-size:12px;color:#555">Water withdrawn</div><div style="font:700 28px/1.05 var(--font-heading)">{{ m.water }}</div><div style="font-size:12px">gal/day · <b style="color:#17806f">{{ m.pct }}% recycled</b></div></div>
+          <div onClick="{{ m.openCost }}" class="blueprint" style="position:relative;border:1.5px solid #22323f;padding:10px;cursor:pointer" style-hover="background:#f1f7fa"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><div style="font-size:12px;color:#555">Annual water cost</div><div style="font:700 28px/1.05 var(--font-heading)">{{ m.cost }}</div><div style="font-size:12px;font-weight:700;color:{{ m.saveCol }}">{{ m.save }}</div></div>
+          <div onClick="{{ m.openEnergy }}" class="blueprint" style="position:relative;border:1.5px solid #22323f;padding:10px;cursor:pointer" style-hover="background:#f1f7fa"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><div style="font-size:12px;color:#555">Treatment energy</div><div style="font:700 28px/1.05 var(--font-heading)">{{ m.kwh }}</div><div style="font-size:12px">kWh/day · {{ m.kwhNote }}</div></div>
+          <div onClick="{{ m.openPayback }}" class="blueprint" style="position:relative;border:1.5px solid #22323f;padding:10px;cursor:pointer" style-hover="background:#f1f7fa"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i><div style="font-size:12px;color:#555">Payback</div><div style="font:700 28px/1.05 var(--font-heading)">{{ m.payback }}</div><div style="font-size:12px">{{ m.paybackNote }}</div></div>
+        </div>
+        <div onClick="{{ m.openRisk }}" class="blueprint" style="position:relative;border:1.5px solid #22323f;padding:10px 12px;display:flex;align-items:center;gap:12px;cursor:pointer" style-hover="background:#f1f7fa"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="position:relative;width:150px;height:88px;flex:none"><div style="position:absolute;left:0;right:0;bottom:6px;text-align:center;font:700 36px/1 var(--font-heading)">{{ m.risk }}</div><svg width="150" height="88" viewBox="0 0 150 88"><path d="M 15 78 A 60 60 0 0 1 135 78" fill="none" stroke="#e3e8ec" stroke-width="16" stroke-linecap="round"></path><path d="M 15 78 A 60 60 0 0 1 135 78" fill="none" stroke="{{ m.riskCol }}" stroke-width="16" stroke-linecap="round" stroke-dasharray="{{ m.riskDash }}" style="transition:stroke-dasharray .6s,stroke .6s"></path></svg></div>
+          <div><div style="font-size:12px;color:#555">Supply risk (0–100)</div><div style="font:700 22px var(--font-heading);color:{{ m.riskCol }}">{{ m.riskLabel }}</div><div style="font-size:12px;line-height:1.3">{{ m.riskNote }}</div></div>
+        </div>
+        <div onClick="{{ m.openCompare }}" class="blueprint" style="position:relative;border:1.5px solid #22323f;padding:10px 12px;cursor:pointer" style-hover="background:#f1f7fa"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px"><b>Baseline vs. your design</b><span style="display:flex;gap:8px"><span><i style="display:inline-block;width:9px;height:9px;background:#b9c0c6;border:1px solid #22323f"></i> Base</span><span><i style="display:inline-block;width:9px;height:9px;background:#3b8fc4;border:1px solid #22323f"></i> You</span></span></div>
+          <div style="display:flex;gap:14px;align-items:flex-end;height:104px;border-bottom:2px solid #22323f"><sc-for list="{{ bars }}" as="g" hint-placeholder-count="3"><div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;justify-content:flex-end;height:100%"><div style="display:flex;gap:4px;align-items:flex-end;height:84px"><div style="width:20px;height:{{ g.bh }}px;background:#b9c0c6;border:1.5px solid #22323f"></div><div style="width:20px;height:{{ g.yh }}px;background:#3b8fc4;border:1.5px solid #22323f;transition:height .6s"></div></div></div></sc-for></div>
+          <div style="display:flex;gap:14px;font-size:12px;margin-top:4px"><sc-for list="{{ bars }}" as="g" hint-placeholder-count="3"><div style="flex:1;text-align:center"><b>{{ g.name }}</b><div style="color:#555">{{ g.val }}</div></div></sc-for></div>
+        </div>
+      </div></sc-if>
+      <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px">
+        <button onClick="{{ backDash }}" style="align-self:flex-start;cursor:pointer;border:1.5px solid #22323f;background:#fff;font:600 13px var(--font-body);padding:6px 10px">← Dashboard</button>
+        <div style="font:700 13px var(--font-heading);letter-spacing:.14em;color:#555">{{ detail.title }}</div>
+        <div style="font:700 40px/1 var(--font-heading)">{{ detail.value }}</div>
+        <div style="font-size:13px;color:#555">{{ detail.unit }}</div>
+        <div>
+          <sc-for list="{{ detail.lines }}" as="l" hint-placeholder-count="4"><div style="display:flex;justify-content:space-between;gap:8px;padding:7px 0;border-bottom:1px dashed #cfd5da;font-size:13.5px"><span>{{ l.label }}</span><b style="color:{{ l.col }}">{{ l.val }}</b></div></sc-for>
+        </div>
+        <div style="font-size:13px;line-height:1.45;background:#eef3f6;border:1px solid #c9d3da;padding:10px">{{ detail.note }}</div>
+        <button onClick="{{ toggleRules }}" style="cursor:pointer;border:1.5px solid #22323f;background:#fff;font:600 13px var(--font-body);padding:8px">Edit assumptions →</button>
+      </div></sc-if>
+      <sc-if value="{{ isRules }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:10px">
+        <div style="font:700 13px var(--font-heading);letter-spacing:.14em;color:#555">ASSUMPTIONS · EDIT ANY NUMBER</div>
+        <sc-for list="{{ fields }}" as="f" hint-placeholder-count="6"><label style="display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px"><span style="flex:1;line-height:1.25">{{ f.label }}</span><input type="number" value="{{ f.v }}" onChange="{{ f.on }}" style="width:92px;border:1.5px solid #22323f;padding:6px;font:600 14px var(--font-body);text-align:right"></label></sc-for>
+        <button onClick="{{ restore }}" style="cursor:pointer;border:1.5px solid #22323f;background:#fff;font:600 13px var(--font-body);padding:8px">Restore defaults</button>
+        <div style="font:700 13px var(--font-heading);letter-spacing:.14em;color:#555;margin-top:6px">CONSTRAINT RULES</div>
+        <ol style="margin:0;padding-left:18px;font-size:13px;line-height:1.4;display:flex;flex-direction:column;gap:5px"><sc-for list="{{ rules }}" as="r" hint-placeholder-count="5"><li>{{ r }}</li></sc-for></ol>
+      </div></sc-if>
+    </div>
+  </div>
+
+  <div style="height:58px;flex:none;display:flex;align-items:center;gap:16px;padding:0 16px;border-top:1px solid var(--color-neutral-300,#c9ccd0);background:#fff">
+    <div style="display:flex"><sc-for list="{{ modes }}" as="s" hint-placeholder-count="2"><button onClick="{{ s.go }}" style="cursor:pointer;font:700 16px var(--font-body);padding:9px 20px;border:2px solid #22323f;margin-left:-2px;background:{{ s.bg }};color:{{ s.fg }}">{{ s.name }}</button></sc-for></div>
+    <div style="margin-left:auto;display:flex;align-items:center;gap:8px"><span style="font:700 12px var(--font-heading);letter-spacing:.14em;color:#555">DEMO STEPS</span>
+      <sc-for list="{{ demo }}" as="d" hint-placeholder-count="5"><button onClick="{{ d.go }}" style="cursor:pointer;font:600 13px var(--font-body);padding:7px 11px;border:1.5px solid #22323f;background:#fff" style-hover="background:#e6f1f7">{{ d.name }}</button></sc-for>
+    </div>
+  </div>
+
+  <sc-if value="{{ hasPopup }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;inset:0;background:#1d1f2059;display:flex;align-items:center;justify-content:center;z-index:50">
+      <div class="blueprint" style="position:relative;width:600px;max-width:94vw;max-height:92vh;overflow:auto;background:#fff;border:2.5px solid #22323f;padding:22px 24px;box-shadow:0 10px 0 #22323f44;animation:pop .2s ease"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+        <div style="display:flex;gap:12px;align-items:center"><span style="width:34px;height:34px;border-radius:50%;background:#d6453d;color:#fff;font:700 20px/34px var(--font-body);text-align:center;border:2.5px solid #22323f">✕</span><span style="font:700 32px var(--font-heading);text-transform:uppercase;letter-spacing:.02em">{{ popup.title }}</span></div>
+        <p style="font-size:16px;line-height:1.5;margin:12px 0 4px">{{ popup.body }}</p>
+        <div style="margin:14px 0 6px;font:700 12px var(--font-heading);letter-spacing:.14em;color:#555">TIER CHAIN</div>
+        <div style="display:flex;align-items:stretch;gap:0;flex-wrap:wrap;row-gap:8px">
+          <sc-for list="{{ popup.chain }}" as="s" hint-placeholder-count="4"><div style="display:flex;align-items:center"><sc-if value="{{ s.arrow }}" hint-placeholder-val="{{ false }}"><span style="font:700 22px var(--font-body);padding:0 6px">›</span></sc-if><div style="min-width:104px;padding:8px 10px;border:2.5px {{ s.bstyle }} {{ s.bcol }};background:{{ s.bg }};text-align:center"><div style="font:700 15px var(--font-body)">{{ s.label }}</div><div style="font-size:12px;font-weight:600">{{ s.tier }}</div><div style="font-size:11px;font-weight:700;color:{{ s.tcol }}">{{ s.note }}</div></div></div></sc-for>
+        </div>
+        <sc-if value="{{ popup.hasRec }}" hint-placeholder-val="{{ true }}"><div style="margin-top:14px;border:2px solid #f08a24;background:#fff4e6;padding:10px 12px;font-size:15px"><b>Recommended:</b> {{ popup.rec }}</div></sc-if>
+        <sc-if value="{{ popup.why }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;background:#eef3f6;border:1.5px solid #22323f;padding:12px;font-size:14.5px;line-height:1.5">{{ popup.whyText }}</div></sc-if>
+        <div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap">
+          <sc-if value="{{ popup.hasRec }}" hint-placeholder-val="{{ true }}"><button onClick="{{ acceptRec }}" style="cursor:pointer;border:2.5px solid #22323f;background:#f08a24;font:700 16px var(--font-body);padding:11px 18px;box-shadow:0 4px 0 #22323f">Add recommended pieces</button></sc-if>
+          <button onClick="{{ toggleWhy }}" style="cursor:pointer;border:2px solid #22323f;background:#fff;font:700 16px var(--font-body);padding:11px 18px">Why?</button>
+          <button onClick="{{ closePopup }}" style="cursor:pointer;border:0;background:transparent;font:600 15px var(--font-body);padding:11px 10px;margin-left:auto;text-decoration:underline">Got it</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;startScenario&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;today&quot;,&quot;y2035&quot;,&quot;y2050&quot;],&quot;default&quot;:&quot;today&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Scenario&quot;},&quot;startMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;build&quot;,&quot;advisor&quot;],&quot;default&quot;:&quot;build&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Mode&quot;}}">
+class Component extends DCLogic {
+  constructor(props){
+    super(props);
+    this.state = {...this.init(), scen:(props&&props.startScenario)||'today', mode:(props&&props.startMode)||'build', N:8, zoom:1, pan:{x:0,y:0}, leftOpen:true, rp:'dash', detail:null, assume:{...this.DEF}};
+  }
+  init(){
+    return {
+      pieces:[{id:'p1',t:'municipal',x:1,y:1},{id:'p2',t:'filter',x:3,y:1},{id:'p3',t:'tower',x:5,y:2},{id:'p4',t:'server',x:6,y:4},{id:'p5',t:'fab',x:1,y:4}],
+      pipes:[{id:'e1',a:'p1',b:'p2',k:'w'},{id:'e2',a:'p2',b:'p3',k:'w'},{id:'e3',a:'p3',b:'p4',k:'cool'}],
+      playing:true, speed:1, tool:'select', sel:null, pend:null, popup:null, open:{src:1,trt:1,con:1},
+      shake:null, bad:null, flash:[], rules:false, draft:'', reply:'', recs:[], whyOpen:{}, seq:100
+    };
+  }
+  C = {src:'#6bb8dc',trt:'#46c0ae',fab:'#dfc09a',dc:'#a9bccd',eff:'#a9d8cf',con:'#cfc7ba'};
+  CATS = [['src','WATER SOURCES'],['trt','TREATMENT'],['fab','SEMICONDUCTOR FAB'],['dc','DATA CENTER CAMPUS'],['eff','EFFICIENCY'],['con','CONNECTORS']];
+  TC = {1:'#a8896a',2:'#7cc6ea',3:'#2db8a3',4:'#2f78c9',5:'#1b2f6b'};
+  TN = {1:'Raw',2:'Filtered',3:'Process-grade',4:'Desalinated/RO',5:'Ultrapure'};
+  // id:[name,cat,out,need,h,opts]
+  T = {
+    municipal:['Municipal supply','src',2,0,30],river:['River intake','src',1,0,26],well:['Groundwater well','src',1,0,26],rain:['Rainwater harvesting','src',1,0,28],
+    desal:['Desalination plant','src',4,1,36,{big:1}],nearby:['Nearby plant (shared)','src',3,0,40],
+    filter:['Basic filter','trt',2,1,30],softener:['Softener','trt',2,1,30],wwt:['Wastewater treatment','trt',3,1,30],recycle:['Recycling loop','trt',3,1,30],polish:['Ultrapure polishing (EDI+UV)','trt',5,4,34],brine:['Brine disposal','trt',0,0,18],
+    fab:['Fab building','fab',0,5,50,{big:1}],clean:['Cleanroom wing','fab',0,5,34],wet:['Wet process bay','fab',0,5,30],cmp:['CMP / polishing bay','fab',0,5,30],upw:['UPW plant','fab',5,4,40],chem:['Chemical storage','fab',0,0,24],
+    server:['Server hall','dc',0,0,40],server2:['Server hall XL','dc',0,0,56,{big:1}],tower:['Cooling tower','dc',0,2,26,{cool:1}],chiller:['Chiller plant','dc',0,2,30,{cool:1}],evap:['Evaporative cooling','dc',0,2,26,{cool:1}],closed:['Closed-loop liquid cooling','dc',0,3,30,{cool:1}],
+    tank:['Water storage tank','dc',0,0,34,{pass:1}],gen:['Backup generator yard','dc',0,0,24],ups:['Battery / UPS room','dc',0,0,26],sub:['Electrical substation','dc',0,0,24],net:['Network / telecom room','dc',0,0,24],fire:['Fire suppression tank','dc',0,2,28],gate:['Security gatehouse','dc',0,2,20],office:['Office / ops center','dc',0,2,32],
+    leak:['Leak detection sensors','eff',0,0,16],meter:['Smart meters','eff',0,0,16],opt:['Process optimization','eff',0,0,20],
+    valve:['Valve','con',0,0,14,{pass:1}],pump:['Pump','con',0,0,16,{pass:1}]
+  };
+  COL = {municipal:'#6bb8dc',river:'#4fa8c9',well:'#7a9fb5',rain:'#9fd3ea',desal:'#3d95c9',nearby:'#7fb8d8',filter:'#8fd4c6',softener:'#5fc9b6',wwt:'#3fae9c',recycle:'#2fb3a0',polish:'#27a090',brine:'#b59a7c',fab:'#d9b48a',clean:'#ecd3b0',wet:'#c9a27a',cmp:'#b88d68',upw:'#e3c08f',chem:'#c7a79a',server:'#9bb0c4',server2:'#8aa0b8',tower:'#8fb4cc',chiller:'#a9c7d6',evap:'#b9d3de',closed:'#7fa8c0',tank:'#b7c9d6',gen:'#b3a79a',ups:'#a7b4a0',sub:'#c4b27d',net:'#9aa6c4',fire:'#d6a29a',gate:'#c9c0b0',office:'#d3d0c8',leak:'#a9d8cf',meter:'#b5dcc0',opt:'#c9e3b5',valve:'#cfc7ba',pump:'#bcb4a6'};
+  // red gal/day, kWh, capex $k, opex $k/yr, risk delta
+  STB = {recycle:[130000,900,1800,150,-12],closed:[110000,600,1400,90,-8],leak:[60000,40,220,25,-4],meter:[15000,10,90,10,-1],opt:[25000,60,300,30,-2],rain:[20000,20,400,20,-4],nearby:[30000,150,500,60,-12],desal:[0,4800,4200,500,-22],polish:[0,700,900,120,0],brine:[0,100,600,80,0],evap:[-60000,300,300,20,3]};
+  get ST(){const a=this.state.assume,o={};Object.keys(this.STB).forEach(k=>{o[k]=[...this.STB[k]];});o.recycle[0]=a.recycle;o.closed[0]=a.closed;o.leak[0]=a.leak;o.desal[1]=a.desalKwh;return o;}
+  RULES = ['Wet process bay, CMP bay, Cleanroom and Fab need Tier 5 (ultrapure) water.','The UPW plant and polishing unit need Tier 4 input. A basic filter or softener can’t feed them.','Cooling tower, chiller and evaporative cooling need Tier 2 or better.','Closed-loop liquid cooling needs Tier 3+.','Fire tank, office and gatehouse need Tier 2 (potable-grade).','A desalination plant needs a brine disposal piece, or you get a warning.','Desalination draws lots of energy. Watch the kWh/day card.','Pipes can’t connect a Tier 5 consumer to anything below Tier 5.','Evaporative cooling in a 2050 drought flags high consumption.'];
+  DEF={baseWater:500000,baseCost:4200,baseKwh:3200,riskToday:38,risk2035:56,risk2050:88,recycle:130000,closed:110000,leak:60000,desalKwh:4800};
+  get OX(){return this.state.N*56+30;} OY=130; TW=56; TH=28;
+  SYM={municipal:'⌁',river:'≈',well:'◉',rain:'∴',desal:'◒',nearby:'↻',filter:'▤',softener:'⬡',wwt:'⟲',recycle:'◈',polish:'✦',brine:'▾',fab:'▦',clean:'❖',wet:'◌',cmp:'◎',upw:'✧',chem:'▲',server:'▤',server2:'▥',tower:'❋',chiller:'✱',evap:'∿',closed:'⟳',tank:'◍',gen:'ϟ',ups:'▭',sub:'⌃',net:'⌬',fire:'✹',gate:'⌂',office:'▣',leak:'◇',meter:'◔',opt:'✺',valve:'⋈',pump:'⊚'};
+  CODE={municipal:'CITY',river:'RIVER',well:'WELL',rain:'RAIN',desal:'DESAL',nearby:'SHARE',filter:'FILTER',softener:'SOFT',wwt:'WWT',recycle:'RECYCLE',polish:'EDI+UV',brine:'BRINE',fab:'FAB',clean:'CLEAN',wet:'WET',cmp:'CMP',upw:'UPW',chem:'CHEM',server:'SERVER',server2:'SERVER+',tower:'COOLING',chiller:'CHILL',evap:'EVAP',closed:'LIQUID',tank:'TANK',gen:'GEN',ups:'UPS',sub:'SUB',net:'NET',fire:'FIRE',gate:'GATE',office:'OPS',leak:'LEAK',meter:'METER',opt:'OPT',valve:'VALVE',pump:'PUMP'};
+  SPEC={municipal:[[.9,26,0],[.4,16,26,0,0,'#cfe9f5']],river:[[.95,12,0],[.35,28,12,-20,6,'#4f8aa8']],well:[[.5,22,0],[.25,16,22,0,0,'#7a7a7a']],rain:[[.8,22,0],[.55,10,22,0,0,'#bfe6f4']],desal:[[1,36,0],[.5,30,36,-14,0],[.22,12,0,44,22,'#9a7a58']],nearby:[[.9,30,0],[.4,22,30,-18,0],[.3,12,30,20,8]],
+  filter:[[.85,26,0],[.5,8,26,0,0,'#e9f6f2']],softener:[[.45,30,0,-14,-6],[.45,30,0,14,8]],wwt:[[1,16,0],[.55,12,16,0,0,'#2c8f80']],recycle:[[.9,20,0],[.5,20,20,0,0],[.25,10,40,0,0,'#7fe0d0']],polish:[[.7,34,0],[.3,10,34,0,0,'#ffe27a']],brine:[[.9,10,0],[.55,6,10,0,0,'#8a6a4a']],
+  fab:[[1,50,0],[.45,26,50,0,0,'#c9b39a']],clean:[[1,22,0],[.7,10,22,0,0,'#f4e6d0']],wet:[[.9,26,0],[.3,18,26,-14,-4,'#9a7a58']],cmp:[[.9,22,0],[.45,10,22,0,0,'#7a6a5a']],upw:[[.9,32,0],[.35,26,32,-18,0,'#e8d3a8'],[.35,26,32,18,0,'#e8d3a8']],chem:[[.4,24,0,-16,-6,'#c47a6a'],[.4,24,0,16,6,'#c47a6a']],
+  server:[[.8,40,0]],server2:[[1,56,0]],tower:[[.85,26,0],[.5,24,26,0,0,'#a9c8da']],chiller:[[.9,24,0],[.35,14,24,-18,0,'#d9e8ef'],[.35,14,24,18,0,'#d9e8ef']],evap:[[.9,18,0],[.7,10,18,0,0,'#d6eef6']],closed:[[.85,26,0],[.3,8,26,-14,0,'#4a7a98'],[.3,8,26,14,0,'#4a7a98']],tank:[[.6,34,0],[.35,6,34,0,0,'#e0ecf3']],gen:[[.9,16,0],[.35,14,16,-16,0,'#d9a441']],ups:[[.85,24,0],[.4,6,24,0,0,'#7fc08a']],sub:[[.8,10,0],[.3,26,10,-14,-4,'#7a6a40'],[.3,26,10,14,4,'#7a6a40']],net:[[.6,28,0],[.12,24,28,0,0,'#555']],fire:[[.6,28,0],[.6,6,28,0,0,'#e07a5f']],gate:[[.7,18,0],[.8,5,18,0,0,'#8a8a80']],office:[[.8,34,0],[.5,10,34,0,0,'#b8b4a8']],
+  leak:[[.35,10,0],[.15,16,10,0,0,'#2e9e5b']],meter:[[.4,14,0],[.3,4,14,0,0,'#f0f0f0']],opt:[[.5,12,0],[.3,18,12,0,0,'#7fb06a']],valve:[[.3,12,0],[.5,5,12,0,0,'#e0a030']],pump:[[.6,14,0],[.35,10,14,0,0,'#e0a030']]};
+  shade(h,k){const n=parseInt(h.slice(1),16);let r=n>>16,g=(n>>8)&255,b=n&255;const t=k>0?255:0,a=Math.abs(k);r=Math.round(r+(t-r)*a);g=Math.round(g+(t-g)*a);b=Math.round(b+(t-b)*a);return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);}
+  proj(gx,gy){return [this.OX+(gx-gy)*this.TW,this.OY+(gx+gy)*this.TH];}
+  ctr(p){return this.proj(p.x+.5,p.y+.5);}
+  pts(a){return a.map(q=>q[0]+','+q[1]).join(' ');}
+  fmt(n){return n>=1000?Math.round(n/1000)+'k':String(n);}
+  incoming(id,s){return s.pipes.filter(e=>e.b===id&&e.k==='w');}
+  eff(id,s,d=0){
+    const p=s.pieces.find(q=>q.id===id);if(!p||d>8)return 0;const t=this.T[p.t];
+    if(t[5]&&t[5].pass){let m=0;this.incoming(id,s).forEach(e=>{m=Math.max(m,this.eff(e.a,s,d+1));});return m;}
+    return t[2];
+  }
+  sorry(t){return t[5]&&t[5].cool;}
+  check(a,b,s=this.state){
+    const A=s.pieces.find(p=>p.id===a),B=s.pieces.find(p=>p.id===b);if(!A||!B||a===b)return {skip:1};
+    if(s.pipes.some(e=>e.a===a&&e.b===b))return {skip:1};
+    const ta=this.T[A.t],tb=this.T[B.t],r={A,B,ta,tb};
+    if(ta[5]&&ta[5].cool&&(B.t==='server'||B.t==='server2'))return {ok:1,k:'cool'};
+    if(B.t==='brine'){return A.t==='desal'?{ok:1,k:'brine'}:{...r,kind:'brine'};}
+    const t=this.eff(a,s);
+    if(ta[2]===0&&!(ta[5]&&ta[5].pass))return {...r,kind:'noout'};
+    if(tb[3]>0){return t>=tb[3]?{ok:1,k:'w'}:{...r,kind:'tier',t,n:tb[3]};}
+    if(tb[2]>0||(tb[5]&&tb[5].pass))return {ok:1,k:'w'};
+    return {...r,kind:'noneed'};
+  }
+  free(pref,s){
+    const N=this.state.N;const all=[...(pref?[pref]:[]),[3,3],[2,3],[4,3],[3,5],[4,5],[2,6],[5,5],[4,4],[3,6],[1,6],[5,0],[6,0],[0,2],[0,4],[7,3],[7,5],[2,0],[4,0],[0,0],[7,7],[2,2],[4,6],[5,6],[6,6],[6,1],[7,1],[0,6],[1,2],[5,4],[3,4],[2,5]];
+    const ok=c=>c[0]>=0&&c[1]>=0&&c[0]<N&&c[1]<N&&!s.pieces.some(p=>p.x===c[0]&&p.y===c[1]);const r=all.find(ok);if(r)return r;for(let i=0;i<N;i++)for(let j=0;j<N;j++)if(ok([i,j]))return [i,j];return [0,0];
+  }
+  PREF={desal:[2,3],brine:[3,3],polish:[2,5],recycle:[4,3],closed:[5,5],nearby:[6,0],leak:[4,0],meter:[5,0],opt:[6,6]};
+  place(t,ghost,s,pref){const id='n'+(++s.seq);const c=this.free(pref||this.PREF[t],s);s.pieces=[...s.pieces,{id,t,x:c[0],y:c[1],ghost:!!ghost}];return id;}
+  has(t,s,ghostOk){return s.pieces.find(p=>p.t===t&&(ghostOk||!p.ghost));}
+  autoPipes(s){
+    const L=[['municipal','desal'],['desal','brine'],['desal','polish'],['polish','fab'],['recycle','tower'],['recycle','closed'],['closed','server'],['nearby','tower']];
+    const fl=[];
+    L.forEach(([x,y])=>{const a=s.pieces.find(p=>p.t===x&&!p.ghost),b=s.pieces.find(p=>p.t===y&&!p.ghost);if(!a||!b)return;
+      if(x==='polish'&&y==='fab'&&s.pipes.some(e=>e.b===b.id&&e.k==='w'&&this.eff(e.a,s)>=5))return;
+      const c=this.check(a.id,b.id,s);if(c.ok){const id='e'+(++s.seq);s.pipes=[...s.pipes,{id,a:a.id,b:b.id,k:c.k}];fl.push(id);}});
+    return fl;
+  }
+  flashNow(ids){this.setState({flash:ids});setTimeout(()=>this.setState({flash:[]}),1600);}
+  connect(a,b){
+    const s={...this.state,pipes:[...this.state.pipes],pieces:[...this.state.pieces]};const c=this.check(a,b,s);
+    if(c.skip){this.setState({pend:null});return;}
+    if(c.ok){const id='e'+(++s.seq);s.pipes=[...s.pipes,{id,a,b,k:c.k}];this.setState({pipes:s.pipes,seq:s.seq,pend:null,sel:null,flash:[id]});setTimeout(()=>this.setState({flash:[]}),1600);return;}
+    const popup=this.makePopup(c,s);
+    this.setState({pend:null,bad:{a,b},shake:b,popup});
+    setTimeout(()=>this.setState({shake:null}),800);setTimeout(()=>this.setState({bad:null}),6000);
+  }
+  makePopup(c,s){
+    const A=c.A,B=c.B,fa=c.ta[0],fb=c.tb[0];
+    const base={why:false,from:A.id,to:B.id,hasRec:false,rec:'',add:[]};
+    if(c.kind==='noout')return {...base,title:'Nothing flows out of that!',body:'A '+fa+' doesn’t send water anywhere. Start your pipe at a water source or treatment unit instead.',chain:[],whyText:'Water pipes run from sources, through treatment, to the pieces that use water.'};
+    if(c.kind==='noneed')return {...base,title:'No water needed here',body:'A '+fb+' doesn’t take a water pipe directly. Its cooling system (like a cooling tower) does the drinking.',chain:[],whyText:'Try piping water to a cooling tower, then link the tower to the server hall.'};
+    if(c.kind==='brine')return {...base,title:'Brine only goes one way',body:'Brine disposal only accepts salty leftovers from a desalination plant.',chain:[],whyText:'Desalination makes clean water plus a concentrated salty stream (brine) that must be handled safely.'};
+    const n=c.n,t=c.t;
+    const chainT={5:['desal','polish'],4:['desal'],3:['recycle'],2:['filter']}[n]||[];
+    let miss=chainT.filter(x=>!this.has(x,s));
+    if(n===5&&t>=4)miss=miss.filter(x=>x!=='desal');
+    const steps=[{label:'Source',tier:'Tier 1–2',tcol:'#555',note:'have it',bg:'#eef8fc',bcol:'#22323f',bstyle:'solid'}];
+    chainT.forEach(x=>{const m=miss.includes(x);const ot=this.T[x][2];steps.push({label:this.T[x][0].replace(' (EDI+UV)',''),tier:'Tier '+ot,tcol:m?'#b85d05':'#1b6b3b',note:m?'MISSING':'have it',bg:m?'#fff4e6':'#e6f6ec',bcol:m?'#f08a24':'#22323f',bstyle:m?'dashed':'solid'});});
+    steps.push({label:fb,tier:'Needs Tier '+n,tcol:'#555',note:'target',bg:'#fff',bcol:'#22323f',bstyle:'solid'});
+    steps.forEach((x,i)=>x.arrow=i>0);
+    const what={5:'Chips need ultrapure water (Tier 5). A '+fa+' only gets you to Tier '+t+': salts and ions are still in there and would ruin wafers.',4:'The UPW plant needs very clean Tier 4 (RO-grade) feed water. A '+fa+' only reaches Tier '+t+'.',3:'A '+fb+' needs process-grade water (Tier 3+). A '+fa+' only reaches Tier '+t+'.',2:'A '+fb+' needs at least filtered water (Tier 2). A '+fa+' only gives Tier '+t+' (raw).'}[n];
+    const whyT={5:'Water gets cleaner one step at a time. Source water (Tier 1–2) goes through Desalination, which strips out dissolved salts (Tier 4). Polishing (EDI + UV) then removes the last ions and microbes (Tier 5). Skip a step and the chain breaks: Source › Desal › Polishing › Fab.',4:'Reverse osmosis pushes water through ultra-fine membranes, removing almost all dissolved solids. Sand filters and softeners can’t do that.',3:'Recycled water is cleaned enough for cooling but isn’t drinkable. A recycling loop reuses water you’ve already paid for.',2:'Raw river, well or rain water has sediment. A basic filter brings it up to Tier 2.'}[n];
+    const add=[...miss];if(add.includes('desal')&&!this.has('brine',s))add.push('brine');
+    return {...base,title:'Not so fast!',body:'A '+fa+' can’t feed '+(/^[aeiou]/i.test(fb)?'an ':'a ')+fb+'. '+what,chain:steps,whyText:whyT,hasRec:add.length>0,rec:miss.map(x=>this.T[x][0].replace(' (EDI+UV)','')+' (Tier '+this.T[x][2]+')').join(' + '),add};
+  }
+  acceptRec=()=>{
+    const pop=this.state.popup;if(!pop)return;
+    const s={...this.state,pieces:[...this.state.pieces],pipes:[...this.state.pipes]};
+    pop.add.forEach(t=>this.place(t,true,s));
+    this.setState({pieces:s.pieces,seq:s.seq,popup:null,bad:null,mode:'build'});
+    setTimeout(()=>{
+      const q={...this.state,pieces:this.state.pieces.map(p=>({...p,ghost:false})),pipes:[...this.state.pipes]};
+      const fl=this.autoPipes(q);
+      this.setState({pieces:q.pieces,pipes:q.pipes,seq:q.seq,flash:fl});setTimeout(()=>this.setState({flash:[]}),1800);
+    },1500);
+  };
+  recList(){return this.state.scen==='y2050'?['desal','recycle','nearby','closed','leak']:['recycle','closed','leak','desal'];}
+  recommend=()=>{
+    const s={...this.state,pieces:[...this.state.pieces]};const recs=[];
+    this.recList().forEach(t=>{let p=this.has(t,s,true);if(!p){const id=this.place(t,true,s);p=s.pieces.find(x=>x.id===id);}recs.push(p.id);});
+    this.setState({pieces:s.pieces,seq:s.seq,recs,mode:'advisor'});
+  };
+  accept(ids){
+    const s={...this.state,pieces:this.state.pieces.map(p=>ids.includes(p.id)?{...p,ghost:false}:p),pipes:[...this.state.pipes]};
+    if(ids.some(i=>(s.pieces.find(p=>p.id===i)||{}).t==='desal')&&!this.has('brine',s)){this.place('brine',false,s);}
+    const fl=this.autoPipes(s);
+    this.setState({pieces:s.pieces,pipes:s.pipes,seq:s.seq,flash:fl});setTimeout(()=>this.setState({flash:[]}),1800);
+  }
+  metrics(){
+    const s=this.state,ps=s.pieces.filter(p=>!p.ghost&&!['p1','p2','p3','p4','p5'].includes(p.id));
+    const a=s.assume;let red=0,kwh=a.baseKwh,capex=0,opex=0,rk=0;
+    ps.forEach(p=>{const x=this.ST[p.t];if(x){red+=x[0];kwh+=x[1];capex+=x[2];opex+=x[3];rk+=x[4];}});
+    const w=Math.max(120000,a.baseWater-red),cost=a.baseCost*(w/a.baseWater)+opex,save=a.baseCost-cost;
+    const base={today:a.riskToday,y2035:a.risk2035,y2050:a.risk2050}[s.scen];let risk=base+rk;
+    if(s.scen==='y2050'&&ps.some(p=>p.t==='evap'))risk+=10;
+    risk=Math.max(6,Math.min(100,risk));
+    return {red,w,kwh,capex,opex,cost,save,risk,pct:Math.round(8+(Math.max(0,red)/a.baseWater)*110),payback:save>0.5&&capex>0?capex/save:null};
+  }
+  online(p,s){return this.incoming(p.id,s).some(e=>this.eff(e.a,s)>=this.T[p.t][3])||s.pipes.some(e=>e.b===p.id&&e.k==='brine');}
+  setZoom(z){this.setState({zoom:Math.max(.4,Math.min(3,z))});}
+  svgPt(e){if(!this.board)return [0,0];const q=new DOMPoint(e.clientX,e.clientY).matrixTransform(this.board.getScreenCTM().inverse());return [q.x,q.y];}
+  tileAt(q){const N=this.state.N,u=(q[0]-this.OX)/this.TW,v=(q[1]-this.OY)/this.TH,x=Math.floor((u+v)/2),y=Math.floor((v-u)/2);return x>=0&&y>=0&&x<N&&y<N?[x,y]:null;}
+  drop(e){e.preventDefault();const d=e.dataTransfer.getData('text/plain');if(d.indexOf('piece:')!==0)return;const t=this.tileAt(this.svgPt(e));const q={...this.state,pieces:[...this.state.pieces]};const id=this.place(d.slice(6),false,q,t||undefined);this.setState({pieces:q.pieces,seq:q.seq,sel:id});}
+  svgDown(e){this.moved=false;const sx=e.clientX,sy=e.clientY,p0={...this.state.pan},k=e.currentTarget.getScreenCTM().a||1;
+    const mv=ev=>{const dx=ev.clientX-sx,dy=ev.clientY-sy;if(!this.moved&&Math.hypot(dx,dy)<5)return;this.moved=true;this.setState({pan:{x:p0.x+dx/k,y:p0.y+dy/k}});};
+    const up=()=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);};
+    window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);}
+  pieceDown(e,p){e.stopPropagation();this.moved=false;const st=this.state;if(st.tool==='delete')return;
+    const pt=this.svgPt(e),c=this.ctr(p),off=[pt[0]-c[0],pt[1]-c[1]],sx=e.clientX,sy=e.clientY,mode=st.tool;
+    const mv=ev=>{if(!this.moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<5)return;this.moved=true;const q=this.svgPt(ev);
+      if(mode==='pipe'){this.setState({pend:p.id,rb:q});return;}
+      if(p.ghost)return;const tl=this.tileAt([q[0]-off[0],q[1]-off[1]]);const cur=this.state.pieces.find(o=>o.id===p.id);
+      if(tl&&cur&&(tl[0]!==cur.x||tl[1]!==cur.y)&&!this.state.pieces.some(o=>o.id!==p.id&&o.x===tl[0]&&o.y===tl[1]))this.setState({pieces:this.state.pieces.map(o=>o.id===p.id?{...o,x:tl[0],y:tl[1]}:o),sel:p.id});};
+    const up=ev=>{window.removeEventListener('pointermove',mv);window.removeEventListener('pointerup',up);
+      if(this.moved&&mode==='pipe'){const el=document.elementFromPoint(ev.clientX,ev.clientY),g=el&&el.closest?el.closest('[data-pid]'):null;this.setState({rb:null});if(g&&g.getAttribute('data-pid')!==p.id)this.connect(p.id,g.getAttribute('data-pid'));else this.setState({pend:null});}};
+    window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);}
+  ast(p,t,on,s){if(p.ghost)return null;const h=x=>this.has(x,s);
+    if(p.t==='fab'&&!on)return ['1·2',()=>this.step(1)];
+    if(p.t==='municipal'){if(s.scen!=='y2050')return ['3',()=>this.step(3)];if(!h('desal')&&!h('nearby'))return ['4',()=>this.step(4)];}
+    if(p.t==='tower'&&!h('recycle')&&!h('closed'))return ['4',()=>this.step(4)];
+    if(p.t==='tower'&&!h('nearby'))return ['5',()=>this.step(5)];
+    if(p.t==='server'&&!h('closed'))return ['4',()=>this.step(4)];
+    return null;}
+  step(n){const s=this.state;
+    if(n===1){const f=this.has('filter',s),fb=this.has('fab',s);if(f&&fb){this.setState({mode:'build'});this.connect(f.id,fb.id);}}
+    else if(n===2){if(!s.popup){const f=this.has('filter',s),fb=this.has('fab',s);if(f&&fb)this.connect(f.id,fb.id);setTimeout(()=>this.acceptRec(),50);}else this.acceptRec();}
+    else if(n===3)this.setState({scen:'y2050'});
+    else if(n===4)this.recommend();
+    else{const q={...s,pieces:[...s.pieces],pipes:[...s.pipes]};if(!this.has('nearby',q))this.place('nearby',false,q);const fl=this.autoPipes(q);this.setState({pieces:q.pieces,pipes:q.pipes,seq:q.seq,flash:fl});setTimeout(()=>this.setState({flash:[]}),1800);}}
+  detailFor(k,m){const s=this.state,a=s.assume,f=n=>Math.round(n).toLocaleString('en-US'),M=v=>'$'+(v/1000).toFixed(2)+'M';
+    const ps=s.pieces.filter(p=>!p.ghost&&!['p1','p2','p3','p4','p5'].includes(p.id)),nm=p=>this.T[p.t][0],L=[],R=(l,v,c)=>L.push({label:l,val:v,col:c||'#1d1f20'});
+    let title='',value='',unit='',note='';
+    if(k==='water'){title='WATER WITHDRAWN';value=f(m.w);unit='gal/day from outside sources';R('Baseline',f(a.baseWater));ps.forEach(p=>{const x=this.ST[p.t];if(x&&x[0])R(nm(p),(x[0]>0?'−':'+')+f(Math.abs(x[0])),x[0]>0?'#1b6b3b':'#b02a22');});R('Your design',f(m.w));note='Pieces that recycle, cool in a closed loop or stop leaks cut how much you pull from the river or city. Anything evaporative adds demand.';}
+    else if(k==='cost'){title='ANNUAL WATER + TREATMENT COST';value=M(m.cost);unit=m.save>=0?'saves '+M(m.save)+' per year vs. baseline':'costs '+M(-m.save)+' more per year';R('Baseline bill','$'+f(a.baseCost)+'k');R('Water bill scaled by use (×'+(m.w/a.baseWater).toFixed(2)+')','$'+f(a.baseCost*m.w/a.baseWater)+'k');ps.forEach(p=>{const x=this.ST[p.t];if(x&&x[3])R(nm(p)+' upkeep','+$'+f(x[3])+'k','#b02a22');});R('Your total','$'+f(m.cost)+'k');note='Less water means a smaller bill, but every treatment piece adds upkeep and power cost. Change the baseline in Rules & assumptions.';}
+    else if(k==='energy'){title='TREATMENT ENERGY';value=f(m.kwh);unit='kWh per day';R('Baseline pumping + treatment',f(a.baseKwh));ps.forEach(p=>{const x=this.ST[p.t];if(x&&x[1])R(nm(p),'+'+f(x[1]),x[1]>1000?'#b02a22':'#1d1f20');});R('Your design',f(m.kwh));note='Desalination is the big one: removing salt takes serious power. That is the honest tradeoff for a drought-proof supply.';}
+    else if(k==='payback'){title='PAYBACK PERIOD';value=m.payback?m.payback.toFixed(1)+' yr':'—';unit=m.payback?'years to repay what you added':'needs positive yearly savings';ps.forEach(p=>{const x=this.ST[p.t];if(x&&x[2])R(nm(p)+' (build cost)','$'+f(x[2])+'k');});R('Total added',m.capex?'$'+f(m.capex)+'k':'$0');R('Net savings per year',m.save>0?'$'+f(m.save)+'k':'none',m.save>0?'#1b6b3b':'#b02a22');note='Payback = money spent on new pieces ÷ yearly savings. Pieces that add water quality but not savings (like the Fab chain) have no payback on their own.';}
+    else if(k==='risk'){title='SUPPLY RISK';value=String(m.risk);unit=m.risk<35?'low risk':m.risk<65?'moderate risk':'high risk';R('Scenario starting point',String({today:a.riskToday,y2035:a.risk2035,y2050:a.risk2050}[s.scen]));ps.forEach(p=>{const x=this.ST[p.t];if(x&&x[4])R(nm(p),(x[4]>0?'+':'')+x[4],x[4]<0?'#1b6b3b':'#b02a22');});R('Final score',String(m.risk));note='Risk rises when the city supply is stressed. Backup sources (desal, a Nearby plant), recycling and rainwater all lower it.';}
+    else if(k==='compare'){title='BASELINE VS. YOUR DESIGN';value=Math.round((1-m.w/a.baseWater)*100)+'%';unit='less water withdrawn';R('Water (gal/day)',f(a.baseWater)+' → '+f(m.w));R('Annual cost',M(a.baseCost)+' → '+M(m.cost));R('Energy (kWh/day)',f(a.baseKwh)+' → '+f(m.kwh));R('Supply risk',({today:a.riskToday,y2035:a.risk2035,y2050:a.risk2050}[s.scen])+' → '+m.risk);note='Everything is relative to the starting campus for the scenario you picked.';}
+    return {title,value,unit,lines:L,note};}
+  renderVals(){
+    const s=this.state,self=this,m=this.metrics(),TW=this.TW,TH=this.TH,N=s.N;
+    const set=o=>()=>this.setState(o);
+    const seg=(arr,cur,key,fn)=>arr.map(([id,name])=>({name,go:fn?()=>fn(id):set({[key]:id}),bg:cur===id?'#22323f':'#fff',fg:cur===id?'#fff':'#1d1f20'}));
+    const scenName={today:'Today',y2035:'2035',y2050:'2050 drought'}[s.scen];
+    const isBuild=s.mode==='build';
+    // palette
+    const cats=this.CATS.map(([id,name])=>{
+      const items=Object.keys(this.T).filter(k=>this.T[k][1]===id).map(k=>{
+        const t=this.T[k],col=this.COL[k]||this.C[id];const o=t[2];
+        return {name:t[0],ft:this.shade(col,.35),fl:col,fr:this.shade(col,-.2),tag:o?'T'+o:(t[3]?'≥T'+t[3]:'—'),tc:o?this.TC[o]:'#7d8890',sym:this.SYM[k],sbg:this.shade(col,.6),canDrag:true,drag:e=>{e.dataTransfer.setData('text/plain','piece:'+k);e.dataTransfer.effectAllowed='copy';},
+          add:()=>{const q={...this.state,pieces:[...this.state.pieces]};this.place(k,false,q);this.setState({pieces:q.pieces,seq:q.seq,sel:q.pieces[q.pieces.length-1].id});}};
+      });
+      if(id==='con')items.unshift({name:'Pipe (drag between pieces)',ft:'#e3f3fa',fl:'#7cc6ea',fr:'#4d9cc4',tag:'tool',tc:'#7d8890',sym:'╱',sbg:'#e3f3fa',canDrag:false,drag:()=>{},add:set({tool:'pipe',pend:null})});
+      const open=!!s.open[id];
+      return {name,open,chev:open?'▾':'▸',toggle:()=>this.setState({open:{...s.open,[id]:open?0:1}}),items};
+    });
+    // pieces
+    const sorted=[...s.pieces].sort((a,b)=>(a.x+a.y)-(b.x+b.y));
+    const drought=s.scen==='y2050';
+    const pieces=sorted.map(p=>{
+      const t=this.T[p.t],o=t[5]||{},[cx,cy]=this.ctr(p);
+      let col=this.COL[p.t]||this.C[t[1]];
+      const dr=p.t==='municipal'&&drought;
+      if(dr)col='#ee7a70';
+      if(p.ghost)col='#ffb866';
+      const spec=this.SPEC[p.t]||[[o.big?1:.8,t[4],0,0,0]];
+      let top=0;
+      const blocks=spec.map(([sx,h,z=0,dx=0,dy=0,c2])=>{
+        const w=TW*sx,d=TH*sx,x=cx+dx,y=cy+dy-z;const bc=p.ghost?'#ffb866':(c2||col);
+        top=Math.max(top,z+h-dy);
+        return {top:this.pts([[x,y-d-h],[x+w,y-h],[x,y+d-h],[x-w,y-h]]),left:this.pts([[x-w,y-h],[x,y+d-h],[x,y+d],[x-w,y]]),right:this.pts([[x+w,y-h],[x,y+d-h],[x,y+d],[x+w,y]]),ft:this.shade(bc,.38),fl:bc,fr:this.shade(bc,-.22)};
+      });
+      const on=t[3]>0&&!p.ghost?this.online(p,s):true;
+      const f=m.w/s.assume.baseWater;
+      const gal={municipal:m.w,river:m.w,filter:m.w,tower:Math.round(260000*f),fab:on?Math.round(240000*f):0,desal:80000,nearby:30000,recycle:130000,closed:110000,leak:60000}[p.t];
+      let btext='',tcol='#fff';
+      const out=t[2],isSrc=out>0;
+      if(isSrc){btext='T'+out+(gal!==undefined?' · '+this.fmt(gal)+' gal/d':'');tcol=this.TC[out];}
+      else if(t[3]>0){btext=on?(gal!==undefined?this.fmt(gal)+' gal/d':'T'+t[3]+' ok'):'T'+t[3]+' needed · offline';tcol=on?this.TC[t[3]]:'#d6453d';}
+      else if(gal!==undefined){btext='saves '+this.fmt(gal)+' gal/d';tcol='#2e9e5b';}
+      if(dr)btext='Supply at risk!';
+      if(p.ghost)btext='AI suggests';
+      const bw=btext.length*6.4+34,by=cy-top-TH-62;
+      const lw=t[0].length*6.9+16;
+      const sel=s.sel===p.id,pend=s.pend===p.id;
+      const click=()=>{if(this.moved){this.moved=false;return;}
+        if(this.state.tool==='delete'){this.setState({pieces:this.state.pieces.filter(q=>q.id!==p.id),pipes:this.state.pipes.filter(e=>e.a!==p.id&&e.b!==p.id),sel:null});return;}
+        if(this.state.tool==='pipe'){if(this.state.pend&&this.state.pend!==p.id)this.connect(this.state.pend,p.id);else this.setState({pend:p.id});return;}
+        if(p.ghost){this.accept([p.id]);return;}
+        this.setState({sel:this.state.sel===p.id?null:p.id});
+      };
+      const b0=spec[0],w0=TW*b0[0],ast=this.ast(p,t,on,s);const ext={sym:this.SYM[p.t]||'●',sx:cx-16,sy:cy-top-TH-34,scx:cx,sty:cy-top-TH-12,sbg:p.ghost?'#fff0dc':this.shade(col,.7),code:this.CODE[p.t]||'',gT:'matrix(1,.5,0,1,'+(cx+(b0[3]||0)-w0/2)+','+(cy+(b0[4]||0)-(b0[2]||0)-b0[1]/2+TH*b0[0]/2+4)+')',gfs:Math.max(8,Math.min(12,w0*.24)),hasAst:!!ast,astText:ast?ast[0]:'',astGo:ast?(e=>{e.stopPropagation();ast[1]();}):null,ax:cx+bw/2+6,ay:by+22,atx:cx+bw/2+26,aty:by+15};
+      return {key:p.id,click,blocks,...ext,down:e=>this.pieceDown(e,p),stroke:p.ghost?'#d9700c':'#22323f',shadow:this.pts([[cx,cy-TH*1.0+6],[cx+TW*1.05,cy+6],[cx,cy+TH*1.0+6],[cx-TW*1.05,cy+6]]),
+        gStyle:'cursor:pointer;'+(s.shake===p.id?'animation:shake .7s ease;':'')+(p.ghost?'animation:glow 1.2s ease infinite;':''),
+        ring:sel||pend,ringCol:pend?'#f08a24':'#3b8fc4',ringPts:this.pts([[cx,cy-TH-2],[cx+TW+4,cy],[cx,cy+TH+2],[cx-TW-4,cy]]),
+        cx,label:t[0],lx:cx-lw/2,lw,ly:cy+TH+4,lty:cy+TH+18,
+        hasBadge:!!btext,btext,bx:cx-bw/2,by,bw,bdx:cx-bw/2+13,bcy:by+11,bty:by+15.5,btx:cx-bw/2+24,tcol,bbg:p.ghost?'#fff0dc':(dr||(!on)?'#ffe9e7':'#fff'),bfg:'#1d1f20'};
+    });
+    // pipes
+    const speedDur=(1.2/s.speed).toFixed(2),play=s.playing?'running':'paused';
+    const pipes=s.pipes.map(e=>{
+      const A=s.pieces.find(p=>p.id===e.a),B=s.pieces.find(p=>p.id===e.b);if(!A||!B)return null;
+      const a=this.ctr(A),b=this.ctr(B),c=this.proj(A.x+.5,B.y+.5);
+      const col=e.k==='cool'?'#bfe3f2':e.k==='brine'?'#a58562':this.TC[this.eff(e.a,s)]||'#7cc6ea';
+      return {key:e.id,d:`M${a[0]} ${a[1]} L${c[0]} ${c[1]} L${b[0]} ${b[1]}`,col,dash:e.k==='cool'?'2 10':'none',flow:s.playing||true,flash:s.flash.includes(e.id),bad:false,
+        dotStyle:`animation:flow ${speedDur}s linear infinite;animation-play-state:${play}`};
+    }).filter(Boolean);
+    if(s.bad){const A=s.pieces.find(p=>p.id===s.bad.a),B=s.pieces.find(p=>p.id===s.bad.b);
+      if(A&&B){const a=this.ctr(A),b=this.ctr(B),c=this.proj(A.x+.5,B.y+.5);const [x,y]=c;
+        pipes.push({key:'bad',d:`M${a[0]} ${a[1]} L${x} ${y} L${b[0]} ${b[1]}`,col:'#d6453d',dash:'none',flow:false,flash:false,bad:true,mx:x,my:y,xd:`M${x-6} ${y-6} L${x+6} ${y+6} M${x+6} ${y-6} L${x-6} ${y+6}`,dotStyle:''});}}
+    if(s.rb&&s.pend){const A=s.pieces.find(q=>q.id===s.pend);if(A){const a=this.ctr(A);pipes.push({key:'rb',d:'M'+a[0]+' '+a[1]+' L'+s.rb[0]+' '+s.rb[1],col:'#f08a24',dash:'12 8',flow:false,flash:false,bad:false,dotStyle:''});}}
+    pipes.forEach(p=>{if(p.mx===undefined){p.mx=0;p.my=0;p.xd='';}});
+    // tiles
+    const tiles=[];
+    for(let i=0;i<N;i++)for(let j=0;j<N;j++){
+      tiles.push({pts:this.pts([this.proj(i,j),this.proj(i+1,j),this.proj(i+1,j+1),this.proj(i,j+1)]),go:()=>{
+        if(this.moved){this.moved=false;return;}const st=this.state;if(st.tool==='select'&&st.sel&&!st.pieces.some(p=>p.x===i&&p.y===j))this.setState({pieces:st.pieces.map(p=>p.id===st.sel?{...p,x:i,y:j}:p),sel:null});}});
+    }
+    let g='';for(let i=0;i<=N;i++){const a=this.proj(i,0),b=this.proj(i,N),c=this.proj(0,i),d=this.proj(N,i);g+=`M${a[0]} ${a[1]}L${b[0]} ${b[1]}M${c[0]} ${c[1]}L${d[0]} ${d[1]}`;}
+    const P=this.proj.bind(this),Dn=(q,k)=>[q[0],q[1]+k];
+    const slabL=this.pts([P(0,N),P(N,N),Dn(P(N,N),16),Dn(P(0,N),16)]),slabR=this.pts([P(N,0),P(N,N),Dn(P(N,N),16),Dn(P(N,0),16)]);
+    // alerts
+    const alerts=[];
+    const fab=s.pieces.find(p=>p.t==='fab');
+    if(fab&&!this.online(fab,s))alerts.push({bg:'#eaf4fa',dot:'#3b8fc4',icon:'i',text:'Your Fab has no water yet. Connect a source to it and see what the checker says.'});
+    if(drought)alerts.push({bg:'#ffe9e7',dot:'#d6453d',icon:'!',text:'Municipal supply is drying up. Risk is high. Try desal, recycling or a Nearby plant.'});
+    if(s.pieces.some(p=>p.t==='desal'&&!p.ghost)&&!s.pipes.some(e=>e.k==='brine'))alerts.push({bg:'#fff6d6',dot:'#c98a00',icon:'!',text:'Desal plant needs brine disposal. Where will the salty leftovers go?'});
+    if(drought&&s.pieces.some(p=>p.t==='evap'&&!p.ghost))alerts.push({bg:'#fff6d6',dot:'#c98a00',icon:'!',text:'Evaporative cooling drinks a lot in a drought.'});
+    if(!alerts.length&&!this.has('recycle',s)&&!this.has('closed',s))alerts.push({bg:'#eaf4fa',dot:'#3b8fc4',icon:'?',text:'Your cooling tower is thirsty. Try a recycling loop?'});
+    if(!alerts.length)alerts.push({bg:'#e6f6ec',dot:'#2e9e5b',icon:'✓',text:'All connections valid. Nice system!'});
+    // dashboard
+    const ofs=(m.red<=0?0:0);
+    const fmtM=v=>'$'+(v/1000).toFixed(2)+'M';
+    const savS=m.save>=0?m.save:-m.save;
+    const risk=m.risk,rc=risk<35?'#2e9e5b':risk<65?'#d49a00':'#d6453d';
+    const mm={water:Math.round(m.w).toLocaleString('en-US'),pct:m.pct,cost:fmtM(m.cost),save:Math.abs(m.save)<5?'baseline':(m.save>0?'saves '+fmtM(savS)+'/yr':'+'+fmtM(savS)+'/yr more'),saveCol:m.save>5?'#1b6b3b':m.save<-5?'#b02a22':'#555',
+      kwh:Math.round(m.kwh).toLocaleString('en-US'),kwhNote:m.kwh>6000?'desal is thirsty for power':'treatment + pumping',
+      payback:m.payback?m.payback.toFixed(1)+' yr':'—',paybackNote:m.capex?'on $'+(m.capex/1000).toFixed(1)+'M added':'add pieces to see',
+      risk,riskCol:rc,riskDash:(risk/100*188.5)+' 188.5',riskLabel:risk<35?'Low':risk<65?'Moderate':'High',riskNote:drought?'Drought: city supply unreliable':s.scen==='y2035'?'Demand rising by 2035':'Supply steady today'};
+    const sc=(a,b)=>Math.max(4,Math.round(a/Math.max(a,b)*80));
+    const bars=[['Water',s.assume.baseWater,m.w,'k gal'],['Cost',s.assume.baseCost,m.cost,'$'],['Energy',s.assume.baseKwh,m.kwh,'kWh']].map(([n,bv,yv],i)=>({name:n,bh:sc(bv,yv),yh:sc(yv,bv),val:i===0?this.fmt(m.w):i===1?fmtM(m.cost):this.fmt(Math.round(m.kwh))}));
+    // rec cards
+    const recCards=s.recs.map(id=>{
+      const p=s.pieces.find(q=>q.id===id);if(!p)return null;
+      const t=this.T[p.t],st=this.ST[p.t]||[0,0,0,0,0],kgal=s.assume.baseCost/s.assume.baseWater*1000;
+      const saveY=st[0]*kgal/1000-st[3],pb=saveY>0?st[2]/saveY:null;
+      const why={recycle:'Your cooling tower is thirsty. This loop treats used water so you can use it again.',closed:'Chilled liquid circulates in a sealed loop instead of evaporating away.',leak:'Sensors spot pipe leaks early, before they waste thousands of gallons.',desal:'Turns seawater or salty water into a drought-proof supply (Tier 4). Needed for chips too.',nearby:'Share treated water with the plant next door when the city runs short.'}[p.t];
+      const long={recycle:'Cooling towers lose water as vapor. A recycling loop captures and re-treats blowdown water to Tier 3, which is plenty for cooling makeup.',closed:'Closed-loop cooling moves heat through liquid in sealed pipes. Almost no water evaporates, so makeup demand drops sharply.',leak:'Typical campuses lose 5–10% of water to leaks nobody sees. Sensors flag them in hours instead of months.',desal:'Desalination pushes water through membranes to strip salts. It uses lots of energy and creates brine that must go to Brine disposal (added automatically).',nearby:'A shared plant gives you a second supplier. In a drought, two suppliers beat one.'}[p.t];
+      const trade={recycle:'+ some energy, needs space',closed:'+ pumping energy, higher upfront cost',leak:'minor: sensors need upkeep',desal:'+ big energy use, needs brine disposal',nearby:'shared contract, small fee'}[p.t];
+      const tg=t[2];
+      return {name:t[0],tag:tg?'T'+tg:'Eff',tc:tg?this.TC[tg]:'#2e9e5b',why,whyLong:long,water:st[0]?'−'+this.fmt(st[0])+' gal/d':'backup supply',money:(saveY>=0?'+':'−')+'$'+Math.abs(saveY/1000).toFixed(2)+'M',payback:pb?pb.toFixed(1)+' yr':'—',trade,
+        showWhy:!!s.whyOpen[id],toggleWhy:()=>this.setState({whyOpen:{...s.whyOpen,[id]:!s.whyOpen[id]}}),pending:!!p.ghost,done:!p.ghost,add:()=>this.accept([id]),_p:p.ghost};
+    }).filter(Boolean);
+    const pendingIds=s.recs.filter(id=>(s.pieces.find(q=>q.id===id)||{}).ghost);
+    const tools=[['select','Select'],['pipe','Pipe'],['delete','Delete']].map(([id,name])=>({name,go:set({tool:id,pend:null}),bg:s.tool===id?'#22323f':'#fff',fg:s.tool===id?'#fff':'#1d1f20'}));
+    const toolHint={select:'Click a piece, then click a tile to move it.',pipe:s.pend?'Now click the piece to connect to.':'Click a source, then the piece it should feed.',delete:'Click a piece to remove it.'}[s.tool];
+    const pop=s.popup;
+    const demo=[['1 · Connect filter → Fab',()=>this.step(1)],['2 · Add recommended',()=>this.step(2)],['3 · 2050 drought',()=>this.step(3)],['4 · Recommend setup',()=>this.step(4)],['5 · Add Nearby plant',()=>this.step(5)]].map(([name,go])=>({name,go}));
+    const W=2*N*TW+60,H=N*2*TH+190,a=s.assume;
+    const D=this.detailFor(s.detail,m);
+    const fl=(k,l)=>({label:l,v:a[k],on:e=>{const v=Number(e.target.value);if(!isNaN(v))this.setState({assume:{...this.state.assume,[k]:v}});}});
+    const goRp=r=>()=>this.setState({rp:r});
+    return {
+      scenarios:seg([['today','Today'],['y2035','2035'],['y2050','2050 drought']],s.scen,'scen'),
+      speeds:[1,2,4].map(v=>({name:v+'×',go:set({speed:v}),bg:s.speed===v?'#22323f':'#fff',fg:s.speed===v?'#fff':'#1d1f20'})),
+      playLabel:s.playing?'❚❚ Pause':'▶ Play',togglePlay:()=>this.setState({playing:!s.playing}),
+      rules:this.RULES,toggleRules:()=>this.setState({rp:s.rp==='rules'?'dash':'rules'}),
+      reset:()=>this.setState({...this.init()}),
+      isBuild,isAdvisor:!isBuild,cats,scenName,
+      recommend:this.recommend,draft:s.draft,onDraft:e=>this.setState({draft:e.target.value}),
+      ask:()=>{const q=(s.draft||'').toLowerCase();const reply=q.includes('50')?'To cut use by about half, I’d add a recycling loop, closed-loop cooling and leak sensors. They’re glowing orange on the board.':drought?'In a drought I’d lean on desalination, recycling and a Nearby plant. See the orange pieces.':'Here’s my best guess for your campus: recycle first, then cool smarter. See the orange pieces.';this.setState({reply});this.recommend();},
+      hasReply:!!s.reply,reply:s.reply,recCards,hasPending:pendingIds.length>0,pendingCount:pendingIds.length,addAll:()=>this.accept(pendingIds),
+      slabL,slabR,diamond:this.pts([P(0,0),P(N,0),P(N,N),P(0,N)]),gridPath:g,tiles,pipes,pieces,
+      tools,toolHint,alerts:alerts.slice(0,3),
+      tierLegend:[1,2,3,4,5].map(i=>({col:this.TC[i],name:'T'+i+' '+this.TN[i]})),
+      m:{...mm,openWater:()=>this.setState({rp:'detail',detail:'water'}),openCost:()=>this.setState({rp:'detail',detail:'cost'}),openEnergy:()=>this.setState({rp:'detail',detail:'energy'}),openPayback:()=>this.setState({rp:'detail',detail:'payback'}),openRisk:()=>this.setState({rp:'detail',detail:'risk'}),openCompare:()=>this.setState({rp:'detail',detail:'compare'})},bars,
+      modes:[['build','Build it myself'],['advisor','AI Advisor']].map(([id,name])=>({name,go:set({mode:id}),bg:s.mode===id?(id==='advisor'?'#f08a24':'#22323f'):'#fff',fg:s.mode===id?(id==='advisor'?'#1d1f20':'#fff'):'#1d1f20'})),
+      demo,hasPopup:!!pop,popup:pop||{chain:[],title:'',body:''},
+      tabs:[['dash','Impact'],['rules','Rules & assumptions']].map(([id,name])=>({name,go:goRp(id),bg:(s.rp===id||(id==='dash'&&s.rp==='detail'))?'#22323f':'#fff',fg:(s.rp===id||(id==='dash'&&s.rp==='detail'))?'#fff':'#1d1f20'})),isDash:s.rp==='dash',isDetail:s.rp==='detail',isRules:s.rp==='rules',backDash:goRp('dash'),detail:D,
+      fields:[fl('baseWater','Baseline water use (gal/day)'),fl('baseCost','Baseline annual water cost ($k)'),fl('baseKwh','Baseline treatment energy (kWh/day)'),fl('riskToday','Supply risk · Today'),fl('risk2035','Supply risk · 2035'),fl('risk2050','Supply risk · 2050 drought'),fl('recycle','Recycling loop saves (gal/day)'),fl('closed','Closed-loop cooling saves (gal/day)'),fl('leak','Leak sensors save (gal/day)'),fl('desalKwh','Desal energy (kWh/day)')],restore:()=>this.setState({assume:{...this.DEF}}),
+      leftW:s.leftOpen?264:0,leftBorder:s.leftOpen?'1px solid #c9ccd0':'0',leftLabel:s.leftOpen?'◀ Hide panel':'▶ Pieces',toggleLeft:()=>this.setState({leftOpen:!s.leftOpen}),
+      vb:'0 0 '+W+' '+H,gTransform:'translate('+s.pan.x+' '+s.pan.y+') translate('+W/2+' '+H/2+') scale('+s.zoom+') translate('+(-W/2)+' '+(-H/2)+')',boardRef:el=>{this.board=el;},svgDown:e=>this.svgDown(e),stopProp:e=>e.stopPropagation(),
+      onWheel:e=>this.setZoom(this.state.zoom*(e.deltaY<0?1.1:0.9)),dragOver:e=>e.preventDefault(),drop:e=>this.drop(e),
+      zoomIn:()=>this.setZoom(s.zoom*1.2),zoomOut:()=>this.setZoom(s.zoom/1.2),zoomFit:()=>this.setState({zoom:1,pan:{x:0,y:0}}),zoomPct:Math.round(s.zoom*100)+'%',nSize:String(N),
+      setN:e=>{const n=Number(e.target.value);this.setState({N:n,pieces:this.state.pieces.map(p=>({...p,x:Math.min(p.x,n-1),y:Math.min(p.y,n-1)}))});},
+      closePopup:()=>this.setState({popup:null,bad:null}),acceptRec:this.acceptRec
+    };
+  }
+}
+</script>
+</body>
+</html>
