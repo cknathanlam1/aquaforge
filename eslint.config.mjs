@@ -12,6 +12,9 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Vendored Claude Design export and generated coverage report: not app code.
+    "design/**",
+    "coverage/**",
   ]),
 ]);
 
