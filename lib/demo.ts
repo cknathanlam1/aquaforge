@@ -1,13 +1,20 @@
 /**
  * Guided demo: the five-step Taiwan Science Park narrative as pure board/settings transforms.
- * The UI animates between steps; tests check the numbers each step produces.
+ *   1. Find the weak points (2021-type drought on the one-fab baseline)
+ *   2. Try something that doesn't work: a river intake piped straight into the fab
+ *   3. Swap in a replacement that does: seawater desalination + ultrapure polishing
+ *   4. Show the assumptions and settings behind every number
+ *   5. Let the AI advisor recommend improvements
+ * The UI animates between steps and opens the panel each step names; tests check the numbers.
  */
 
-import { addEdge, addNode, nodeById, removeEdge } from "./board";
+import { addNode, nodeById } from "./board";
 import type { Board, RuleResult, ScenarioSettings } from "./contract";
 import { DEFAULT_SETTINGS } from "./contract";
 import { TAIWAN_SCIENCE_PARK } from "./presets";
 import { applyRecommendation, checkConnection } from "./rules";
+
+export type DemoPanel = "impact" | "assumptions" | "advisor";
 
 export interface DemoState {
   board: Board;
@@ -16,6 +23,14 @@ export interface DemoState {
   popup: RuleResult | null;
   /** Node ids the UI should highlight. */
   focus: string[];
+  /** Which right/side panel the step should show. */
+  panel: DemoPanel;
+  /** Bottom mode toggle. */
+  mode: "build" | "advisor";
+  /** Step 1: show the engine's weak-points list (engine.weakPoints). */
+  showWeakPoints: boolean;
+  /** Step 5: run engine.advise() on entry. */
+  runAdvisor: boolean;
 }
 
 export interface DemoStep {
@@ -25,95 +40,79 @@ export interface DemoStep {
   apply: (prev: DemoState) => DemoState;
 }
 
+const FAB = "n4";
+const MUNICIPAL = "n1";
+
 export function demoStart(): DemoState {
-  return { board: TAIWAN_SCIENCE_PARK, settings: { ...DEFAULT_SETTINGS, scenarioId: "normal" }, popup: null, focus: ["n4"] };
+  return {
+    board: TAIWAN_SCIENCE_PARK,
+    settings: { ...DEFAULT_SETTINGS, scenarioId: "drought2021" },
+    popup: null,
+    focus: [MUNICIPAL, FAB],
+    panel: "impact",
+    mode: "build",
+    showWeakPoints: true,
+    runAdvisor: false,
+  };
 }
 
-function findType(board: Board, type: string): string | undefined {
-  return board.nodes.find((n) => n.type === type)?.id;
+const RESET_FLAGS = { popup: null, showWeakPoints: false, runAdvisor: false, panel: "impact" as DemoPanel, mode: "build" as const };
+
+/** (2) A river intake piped straight into the fab: raw Tier 1 water into a Tier 5 consumer. */
+function tryRiverIntoFab(prev: DemoState): DemoState {
+  const fab = nodeById(prev.board, FAB);
+  const river = addNode(prev.board, "river", { x: (fab?.x ?? 5) - 4, y: (fab?.y ?? 4) + 2 });
+  return {
+    ...prev,
+    ...RESET_FLAGS,
+    board: river.board,
+    popup: checkConnection(river.board, river.id, FAB),
+    focus: [river.id, FAB],
+  };
 }
 
-/** (c) Seawater intake → Basic filter, then the user tries filter → fab. */
-function tryFilterIntoFab(prev: DemoState): DemoState {
-  const fab = findType(prev.board, "fab") as string;
-  const sea = addNode(prev.board, "seawater", { x: 0, y: 7 });
-  const filter = addNode(sea.board, "filter", { x: 2, y: 7 });
-  const board = addEdge(filter.board, sea.id, filter.id).board;
-  return { ...prev, board, popup: checkConnection(board, filter.id, fab), focus: [filter.id, fab] };
-}
-
-/** (d) Accept Desal + Polishing, then add a recycling loop and a storage tank. */
-function addResilience(prev: DemoState): DemoState {
-  let board = prev.popup && !prev.popup.valid ? applyRecommendation(prev.board, prev.popup) : prev.board;
-  const fab = findType(board, "fab") as string;
-  const ro = findType(board, "ro") as string;
-  const recycle = addNode(board, "recycle", { x: 3, y: 4 });
-  board = addEdge(recycle.board, fab, recycle.id).board;
-  board = addEdge(board, recycle.id, ro).board;
-  const upw = findType(board, "upw") as string;
-  const upwToFab = board.edges.find((e) => e.from === upw && e.to === fab);
-  if (upwToFab) {
-    const fabNode = nodeById(board, fab);
-    const tank = addNode(removeEdge(board, upwToFab.id), "tank", { x: (fabNode?.x ?? 5) + 1, y: (fabNode?.y ?? 4) - 2 });
-    board = addEdge(addEdge(tank.board, upw, tank.id).board, tank.id, fab).board;
-  }
-  return { ...prev, board, popup: null, focus: [recycle.id] };
-}
-
-/** (e) A neighbor fab (existing, with its own conventional train) joins the shared recycled loop. */
-function addNeighbor(prev: DemoState): DemoState {
-  let board = prev.board;
-  const municipal = findType(board, "municipal") as string;
-  const recycle = findType(board, "recycle") as string;
-  const nro = addNode(board, "ro", { x: 9, y: 1 }, { existing: true });
-  const nupw = addNode(nro.board, "upw", { x: 11, y: 1 }, { existing: true });
-  const nfab = addNode(nupw.board, "neighbor_fab", { x: 11, y: 4 }, { existing: true });
-  const recycle2 = addNode(nfab.board, "recycle", { x: 9, y: 5 });
-  board = recycle2.board;
-  for (const [from, to] of [
-    [municipal, nro.id],
-    [nro.id, nupw.id],
-    [nupw.id, nfab.id],
-    [nfab.id, recycle],
-    [nfab.id, recycle2.id],
-    [recycle, nro.id],
-    [recycle2.id, nro.id],
-  ] as const) {
-    board = addEdge(board, from, to).board;
-  }
-  return { ...prev, board, focus: [nfab.id, recycle2.id] };
+/**
+ * (3) Accept the recommendation (Desal + Polishing, with brine disposal), and feed the desal
+ * plant from the sea instead of the river so the new supply is drought-proof.
+ */
+function swapInDesal(prev: DemoState): DemoState {
+  const withChain = prev.popup && !prev.popup.valid ? applyRecommendation(prev.board, prev.popup) : prev.board;
+  const riverId = withChain.nodes.find((n) => n.type === "river")?.id;
+  const board: Board = { ...withChain, nodes: withChain.nodes.map((n) => (n.id === riverId ? { ...n, type: "seawater" } : n)) };
+  const added = board.nodes.filter((n) => !TAIWAN_SCIENCE_PARK.nodes.some((b) => b.id === n.id)).map((n) => n.id);
+  return { ...prev, ...RESET_FLAGS, board, focus: added };
 }
 
 export const DEMO_STEPS: DemoStep[] = [
   {
     id: "a",
-    title: "Baseline: one fab, normal year",
-    narration: "One fab on reservoir water. In a normal year the water bill is small next to the fab's revenue, so nobody acts.",
+    title: "Find the weak points",
+    narration: "One fab, one reservoir, a 2021-type drought. The engine flags what breaks first and what each weakness costs a year.",
     apply: () => demoStart(),
   },
   {
     id: "b",
-    title: "2021-type drought",
-    narration: "Reservoirs run dry and the government cuts industrial supply. The gap is trucked in: this is the cost of doing nothing.",
-    apply: (prev) => ({ ...prev, settings: { ...prev.settings, scenarioId: "drought2021" }, popup: null }),
+    title: "Try something that doesn't work",
+    narration: "Pipe a river intake straight into the fab. Raw river water is Tier 1; chips need Tier 5, so the checker stops you and explains why.",
+    apply: tryRiverIntoFab,
   },
   {
     id: "c",
-    title: "Try a basic filter into the fab",
-    narration: "Seawater through a basic filter is only Tier 2. The fab needs Tier 5, so the checker recommends Desal + UPW polishing.",
-    apply: tryFilterIntoFab,
+    title: "Swap in desalination",
+    narration: "Take the recommendation: a desalination plant (fed from the sea, so a drought can't cut it), ultrapure polishing, and brine disposal. Watch the drought cost and payback.",
+    apply: swapInDesal,
   },
   {
     id: "d",
-    title: "Recycle, desal + polishing, storage",
-    narration: "Accept the recommendation, recycle the fab's wastewater back into RO, and add a buffer tank. Watch savings, payback and NPV.",
-    apply: addResilience,
+    title: "Check the assumptions",
+    narration: "Every number comes from an editable assumption, labeled sourced or illustrative. Change one, or flip a scenario setting, and the whole dashboard recomputes.",
+    apply: (prev) => ({ ...prev, ...RESET_FLAGS, focus: [], panel: "assumptions" }),
   },
   {
     id: "e",
-    title: "A neighbor joins the loop",
-    narration: "A neighbor fab shares the recycled loop and adds recycling capacity. Savings scale across the park.",
-    apply: addNeighbor,
+    title: "Ask the AI advisor",
+    narration: "The advisor tries the additions that could help, drops any that break a rule, and ranks the rest by risk-adjusted NPV.",
+    apply: (prev) => ({ ...prev, ...RESET_FLAGS, focus: [], panel: "advisor", mode: "advisor", runAdvisor: true }),
   },
 ];
 

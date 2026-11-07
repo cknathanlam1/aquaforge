@@ -7,6 +7,7 @@ import { compare } from "./finance";
 import { nominalOutputTier, PIECES } from "./pieces";
 import { PRESETS } from "./presets";
 import { applyRecommendation, checkConnection, evaluateRules, requiredTier } from "./rules";
+import { weakPoints } from "./weakpoints";
 
 const CATALOG: PieceInfo[] = PIECE_TYPES.map((type) => {
   const d = PIECES[type];
@@ -32,7 +33,8 @@ export const engine: EngineApi = {
   compare,
   applyRecommendation,
   advise,
+  weakPoints,
 };
 
 export { DEMO_STEPS, demoStart, demoStateAt } from "./demo";
-export type { DemoState, DemoStep } from "./demo";
+export type { DemoPanel, DemoState, DemoStep } from "./demo";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultValues } from "../lib/assumptions";
-import { demoStateAt } from "../lib/demo";
+import { neighborBoard, resilienceBoard } from "./fixtures";
 import { PRESETS, TAIWAN_SCIENCE_PARK } from "../lib/presets";
 import { droughtConditions, scenarioParams } from "../lib/scenarios";
 import { NORMAL_CONDITIONS, simulateDay } from "../lib/simulation";
@@ -25,8 +25,8 @@ describe("water balance", () => {
 
   it.each([
     ...PRESETS.map((p) => [p.name, p.file.board] as const),
-    ["demo step d (recycle + desal + tank)", demoStateAt(3).board] as const,
-    ["demo step e (neighbor shares the loop)", demoStateAt(4).board] as const,
+    ["recycle + desal + tank", resilienceBoard()] as const,
+    ["neighbor shares the loop", neighborBoard()] as const,
   ])("conserves mass: %s", (_name, board) => {
     const day = simulateDay(board, v);
     const { withdrawn, consumptive, discharge, brine, massBalanceError } = day.totals;
@@ -39,14 +39,14 @@ describe("water balance", () => {
   it("conserves mass on a drought day with trucking", () => {
     const s = settings({ scenarioId: "drought2021" });
     const params = scenarioParams(v, s);
-    const normal = simulateDay(demoStateAt(4).board, v);
-    const day = simulateDay(demoStateAt(4).board, v, droughtConditions(normal, params, s, v));
+    const normal = simulateDay(neighborBoard(), v);
+    const day = simulateDay(neighborBoard(), v, droughtConditions(normal, params, s, v));
     expectMassBalance(day.totals.withdrawn, day.totals.massBalanceError);
   });
 
   it("recycling replaces municipal water and shows up as recycled share", () => {
-    const before = simulateDay(demoStateAt(0).board, v);
-    const after = simulateDay(demoStateAt(3).board, v);
+    const before = simulateDay(TAIWAN_SCIENCE_PARK, v);
+    const after = simulateDay(resilienceBoard(), v);
 
     // Limited by plant capacity or by the fab's wastewater (demand × (1 − consumptive) × recovery).
     const wastewaterLimit = 20000 * (1 - v["consumptive.fab"]) * v["recovery.recycle"];

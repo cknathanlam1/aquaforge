@@ -300,6 +300,20 @@ export interface AdvisorResult {
   plan: AdvisorCard | null;
 }
 
+// ---------- Weak points ----------
+
+/** A vulnerability the engine found on the board (guided demo step 1). */
+export interface WeakPoint {
+  id: string;
+  severity: "high" | "medium";
+  title: string;
+  detail: string;
+  /** Pieces to highlight on the board. */
+  nodeIds: string[];
+  /** Annual cost this weakness drives (USD/yr), or null when it has no clean dollar figure. */
+  annualImpact: number | null;
+}
+
 // ---------- Engine API (implemented in lib/engine.ts by workstream A) ----------
 
 export interface EngineApi {
@@ -314,6 +328,8 @@ export interface EngineApi {
   /** Insert the missing recommended pieces from a failed connection (incl. brine disposal for desal). */
   applyRecommendation(board: Board, result: RuleResult): Board;
   advise(board: Board, values: AssumptionValues, settings: ScenarioSettings): AdvisorResult;
+  /** Vulnerabilities, judged against a 2021-type drought, ranked by severity then dollars. */
+  weakPoints(board: Board, values: AssumptionValues, settings: ScenarioSettings): WeakPoint[];
 }
 
 // ---------- Advise API (app/api/advise, workstream D) ----------

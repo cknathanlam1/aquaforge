@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultValues } from "../lib/assumptions";
-import { demoStateAt } from "../lib/demo";
+import { neighborBoard, resilienceBoard } from "./fixtures";
 import { compare, dailySurcharge, npv, simplePayback } from "../lib/finance";
 import { TAIWAN_SCIENCE_PARK } from "../lib/presets";
 import { m3ToTonnes, tonnesToM3, twdToUsd, usdToTwd } from "../lib/units";
@@ -52,13 +52,13 @@ describe("design vs do-nothing baseline", () => {
   });
 
   it("risk-adjusted savings = net savings + avoided expected disruption", () => {
-    const c = compare(demoStateAt(3).board, v, settings({ scenarioId: "drought2021" }));
+    const c = compare(resilienceBoard(), v, settings({ scenarioId: "drought2021" }));
     const avoided = c.baseline.expectedDisruptionCost - c.design.expectedDisruptionCost;
     expect(c.metrics.riskAdjustedSavings.value).toBeCloseTo((c.metrics.netAnnualSavings.value ?? 0) + avoided, 2);
   });
 
   it("payback and NPV metrics match the pure formulas", () => {
-    const c = compare(demoStateAt(3).board, v, settings({ scenarioId: "drought2021" }));
+    const c = compare(resilienceBoard(), v, settings({ scenarioId: "drought2021" }));
     const capex = c.metrics.capex.value ?? 0;
     const net = c.metrics.netAnnualSavings.value ?? 0;
     expect(c.metrics.payback.value).toBe(simplePayback(capex, net));
@@ -66,7 +66,7 @@ describe("design vs do-nothing baseline", () => {
   });
 
   it("every metric shows its formula and inputs", () => {
-    const c = compare(demoStateAt(3).board, v, settings({ scenarioId: "drought2021" }));
+    const c = compare(resilienceBoard(), v, settings({ scenarioId: "drought2021" }));
     for (const m of Object.values(c.metrics)) {
       expect(m.formula.length).toBeGreaterThan(5);
       expect(Array.isArray(m.inputs)).toBe(true);
