@@ -1,0 +1,1362 @@
+{
+  "fx.twdPerUsd": {
+    "value": 32,
+    "low": 31.5,
+    "high": 33,
+    "status": "sourced",
+    "source": "TrendForce/Wise: 2026 mid-market range 31.77-32.63",
+    "url": "https://datatrack.trendforce.com/Chart/content/1012/taiwan-ntdusd"
+  },
+  "price.municipal": {
+    "value": 0.38,
+    "low": 0.29,
+    "high": 0.45,
+    "status": "sourced",
+    "source": "Taiwan Water Corp top tier NT$12.075/m3 (Taiwan News 2024); WRA 2021 avg NT$9.24/t (AmCham 2023)",
+    "url": "https://www.taiwannews.com.tw/news/6060912"
+  },
+  "price.groundwater": {
+    "value": 0.1,
+    "low": 0.03,
+    "high": 0.2,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "price.seawater": {
+    "value": 0,
+    "low": 0,
+    "high": 0.02,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "price.river": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "price.rain": {
+    "value": 0,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "price.reclaimed": {
+    "value": 0.7,
+    "low": 0.36,
+    "high": 0.97,
+    "status": "sourced",
+    "source": "Reclaimed water cost NT$18.8-30.9/t excl. construction; Fengshan O&M NT$11.5/m3 (Sustainable Environment Research, 2023). Cost proxy; contract prices not public.",
+    "url": "https://sustainenvironres.biomedcentral.com/articles/10.1186/s42834-023-00177-8"
+  },
+  "price.discharge": {
+    "value": 0.48,
+    "low": 0.25,
+    "high": 0.8,
+    "status": "sourced",
+    "source": "Taichung Tanzi Technology Industrial Park sewer fee NT$15.42/m3 (2024 regulation). Single park only.",
+    "url": "https://www.laws.taipei.gov.tw/lawatt/Law/A040100071005100-20240221-3000-004.pdf"
+  },
+  "price.brine": {
+    "value": 0.05,
+    "low": 0,
+    "high": 0.2,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "price.electricity": {
+    "value": 0.134,
+    "low": 0.118,
+    "high": 0.15,
+    "status": "sourced",
+    "source": "Taipower industrial avg ~NT$4.29/kWh after +12.5% (16 Oct 2024), Taipei Times 1 Oct 2024; rates frozen through 2026",
+    "url": "https://www.taipeitimes.com/News/front/archives/2024/10/01/2003824615"
+  },
+  "policy.surchargeRate": {
+    "value": 0.094,
+    "low": 0.031,
+    "high": 0.094,
+    "status": "sourced",
+    "source": "NT$3/m3, reduced to NT$2/NT$1 for recycling benchmarks; halved through 2025, full from 2026 (UDN 2026). Applies Nov-Apr only.",
+    "url": "https://udn.com/news/story/7238/9579443"
+  },
+  "energy.filter": {
+    "value": 0.05,
+    "low": 0.02,
+    "high": 0.1,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "energy.process": {
+    "value": 0.2,
+    "low": 0.1,
+    "high": 0.3,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "energy.ro": {
+    "value": 0.9,
+    "low": 0.5,
+    "high": 1.5,
+    "status": "sourced",
+    "source": "RO on tap/groundwater feed 0.83-1.20 kWh/m3 (Sustainable Environment Research 2022, Table 3)",
+    "url": "https://sustainenvironres.biomedcentral.com/articles/10.1186/s42834-022-00145-8"
+  },
+  "energy.desal": {
+    "value": 3.5,
+    "low": 3,
+    "high": 4.5,
+    "status": "sourced",
+    "source": "Full-plant SWRO 3.5-4.5 kWh/m3 (Canary Islands study, Water 16:910, 2024)",
+    "url": "https://accedacris.ulpgc.es/bitstream/10553/129736/1/water-16-00910.pdf"
+  },
+  "energy.polish": {
+    "value": 0.5,
+    "low": 0.3,
+    "high": 1,
+    "status": "sourced",
+    "source": "EDI 0.35-0.66 kWh/m3 (OSTI resin-wafer EDI) plus UV; low confidence",
+    "url": "https://www.osti.gov/biblio/1638484"
+  },
+  "energy.recycle": {
+    "value": 1.2,
+    "low": 0.8,
+    "high": 2.5,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "energy.groundwaterPump": {
+    "value": 0.4,
+    "low": 0.2,
+    "high": 0.8,
+    "status": "illustrative",
+    "source": "Derived: rho*g*h/eta = 0.39 kWh/m3 at 100 m head, 70% efficiency. Estimate, not a sourced fact.",
+    "url": null
+  },
+  "energy.seawaterPump": {
+    "value": 0.3,
+    "low": 0.1,
+    "high": 0.5,
+    "status": "illustrative",
+    "source": "Derived: ~50-70 m total head. May double-count with the SWRO 3.5-4.5 kWh/m3 figure.",
+    "url": null
+  },
+  "energy.riverPump": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "energy.softener": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "energy.wwt": {
+    "value": 0.8,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "recovery.softener": {
+    "value": 0.97,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "recovery.wwt": {
+    "value": 0.6,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "varcost.softener": {
+    "value": 0.03,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "varcost.wwt": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.river": {
+    "value": 30000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.rain": {
+    "value": 300,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.softener": {
+    "value": 30000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.wwt": {
+    "value": 15000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "rain.droughtAvail": {
+    "value": 0.2,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "recovery.filter": {
+    "value": 0.98,
+    "low": 0.95,
+    "high": 0.99,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "recovery.process": {
+    "value": 0.95,
+    "low": 0.9,
+    "high": 0.98,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "recovery.ro": {
+    "value": 0.75,
+    "low": 0.65,
+    "high": 0.9,
+    "status": "sourced",
+    "source": "Conventional 2-stage RO ~75%; high-recovery semicon systems up to 96% (Gradiant)",
+    "url": "https://gradiant.com/success-stories/one-integrated-platform-zero-discharge-indias-first-semiconductor-fab/"
+  },
+  "recovery.polish": {
+    "value": 0.95,
+    "low": 0.9,
+    "high": 0.98,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "recovery.recycle": {
+    "value": 0.7,
+    "low": 0.5,
+    "high": 0.9,
+    "status": "sourced",
+    "source": "TSMC recycled ~87% of manufacturing water in 2019 (Fortune); single-plant recovery up to 96% (Gradiant). 0.7 is a mid-plant default.",
+    "url": "https://fortune.com/2021/06/12/chip-shortage-taiwan-drought-tsmc-water-usage/"
+  },
+  "desal.brineFraction": {
+    "value": 0.55,
+    "low": 0.5,
+    "high": 0.65,
+    "status": "sourced",
+    "source": "SWRO recovery ~40-50% => brine 50-60% of feed",
+    "url": "https://accedacris.ulpgc.es/bitstream/10553/129736/1/water-16-00910.pdf"
+  },
+  "varcost.filter": {
+    "value": 0.01,
+    "low": 0.005,
+    "high": 0.03,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "varcost.process": {
+    "value": 0.02,
+    "low": 0.01,
+    "high": 0.05,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "varcost.ro": {
+    "value": 0.05,
+    "low": 0.03,
+    "high": 0.1,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "varcost.desal": {
+    "value": 0.53,
+    "low": 0.3,
+    "high": 0.8,
+    "status": "illustrative",
+    "source": "Derived: 1.0 USD/t anchor minus 3.5 kWh x 0.134 USD/kWh. World Bank 2019 total SWRO opex US$0.5-1.0/m3. Recompute if electricity price changes.",
+    "url": null
+  },
+  "varcost.polish": {
+    "value": 0.1,
+    "low": 0.05,
+    "high": 0.3,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "varcost.recycle": {
+    "value": 0.15,
+    "low": 0.1,
+    "high": 0.4,
+    "status": "sourced",
+    "source": "Singapore PUB wafer-fab guide: total recycling opex US$0.20-1.40/m3 incl. energy; low confidence",
+    "url": "https://info.pub.gov.sg/Documents/Water_Efficiency_Wafer_Fabrication_Semiconductor_v2.pdf"
+  },
+  "desal.costAnchor": {
+    "value": 1,
+    "low": 0.5,
+    "high": 1.5,
+    "status": "sourced",
+    "source": "Al Jazeera, E. Hale, 20 Aug 2021: 'about $1 per tonne' (verified on page)",
+    "url": "https://www.aljazeera.com/news/2021/8/20/taiwan-water-woes"
+  },
+  "cap.municipal": {
+    "value": 200000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.groundwater": {
+    "value": 5000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.seawater": {
+    "value": 40000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.reclaimed": {
+    "value": 15000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.filter": {
+    "value": 40000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.process": {
+    "value": 30000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.ro": {
+    "value": 35000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.desal": {
+    "value": 13000,
+    "low": 13000,
+    "high": 100000,
+    "status": "sourced",
+    "source": "WRA: emergency Hsinchu desal unit 13,000 t/day (2021); 100,000 m3/day plant due ~2028",
+    "url": "https://www.wra.gov.tw/wrapen/cp.aspx?n=44729"
+  },
+  "cap.polish": {
+    "value": 30000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "cap.recycle": {
+    "value": 20000,
+    "low": 5000,
+    "high": 30000,
+    "status": "sourced",
+    "source": "CTCI: TSMC STSP reclamation plant started 19 Sep 2022 at 5,000 t/day, 20,000 a year later, 30,000 by 2026",
+    "url": "https://technode.global/prnasia/ctci-helps-top-chipmaker-tsmc-save-water-with-the-industrys-first-industrial-wastewater-reclamation-plant-for-chip-use/"
+  },
+  "storage.volume": {
+    "value": 20000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.filter": {
+    "value": 2000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.process": {
+    "value": 4000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.ro": {
+    "value": 12000000,
+    "low": 7000000,
+    "high": 25000000,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.desal": {
+    "value": 40000000,
+    "low": 20000000,
+    "high": 70000000,
+    "status": "sourced",
+    "source": "Range: US$1,500 per m3/day (small-plant low end) to ~US$5,400 per m3/day (Hsinchu NT$17.7B / 100,000 m3/day contract incl. O&M); 40M = ~US$3,080 per m3/day",
+    "url": "https://www.taiwannews.com.tw/en/news/5895709"
+  },
+  "capex.polish": {
+    "value": 15000000,
+    "low": 10000000,
+    "high": 40000000,
+    "status": "sourced",
+    "source": "Veolia: complete fab UPW system US$25-40M; polishing is a share. Low confidence.",
+    "url": "https://www.middle-east.veoliawatertechnologies.com/sites/g/files/dvc3051/files/document/2021/07/190432_VWT_SEA_Microelectronics_Industry_Brochure_LR.pdf"
+  },
+  "capex.recycle": {
+    "value": 25000000,
+    "low": 15000000,
+    "high": 50000000,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.storage": {
+    "value": 3000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.brine": {
+    "value": 5000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.seawater": {
+    "value": 8000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.groundwater": {
+    "value": 1500000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.reclaimed": {
+    "value": 1000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.river": {
+    "value": 2000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.rain": {
+    "value": 400000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.softener": {
+    "value": 1500000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.wwt": {
+    "value": 10000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.leak": {
+    "value": 220000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.meter": {
+    "value": 90000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "capex.opt": {
+    "value": 300000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.filter": {
+    "value": 150000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.process": {
+    "value": 300000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.ro": {
+    "value": 800000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.desal": {
+    "value": 1500000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.polish": {
+    "value": 1000000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.recycle": {
+    "value": 1200000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.storage": {
+    "value": 50000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.brine": {
+    "value": 200000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.seawater": {
+    "value": 300000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.groundwater": {
+    "value": 100000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.reclaimed": {
+    "value": 50000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.river": {
+    "value": 100000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.rain": {
+    "value": 20000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.softener": {
+    "value": 100000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.wwt": {
+    "value": 600000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.leak": {
+    "value": 25000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.meter": {
+    "value": 10000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "om.opt": {
+    "value": 30000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "eff.leak": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "eff.meter": {
+    "value": 0.02,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "eff.opt": {
+    "value": 0.1,
+    "low": 0.05,
+    "high": 0.3,
+    "status": "illustrative",
+    "source": "Singapore PUB wafer-fab water efficiency guide lists rinse/process optimisation measures but no single % saving; keep illustrative.",
+    "url": "https://info.pub.gov.sg/Documents/Water_Efficiency_Wafer_Fabrication_Semiconductor_v2.pdf"
+  },
+  "demand.fab": {
+    "value": 20000,
+    "low": 10000,
+    "high": 99000,
+    "status": "sourced",
+    "source": "Fortune citing China Water Risk, 12 Jun 2021 (verified); TSMC STSP site up to 99,000 t/day",
+    "url": "https://fortune.com/2021/06/12/chip-shortage-taiwan-drought-tsmc-water-usage/"
+  },
+  "demand.fabWet": {
+    "value": 8000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.fabCmp": {
+    "value": 3000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.fabCleanroom": {
+    "value": 1000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.coolingTower": {
+    "value": 4000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.office": {
+    "value": 150,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.fire": {
+    "value": 20,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.evap": {
+    "value": 3500,
+    "low": 400,
+    "high": 5000,
+    "status": "illustrative",
+    "source": "Derived: 1.8 L/kWh (LBNL 2016 avg WUE) => ~43 m3/day per MW IT; 3,500 ~ 80 MW campus. Evaporative sites can run 3-8 L/kWh.",
+    "url": "https://www.datacenterknowledge.com/cooling/data-center-water-use-from-efficiency-metrics-to-real-world-resilience"
+  },
+  "demand.gate": {
+    "value": 5,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.dcLiquid": {
+    "value": 400,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.chiller": {
+    "value": 800,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.neighborFab": {
+    "value": 20000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "demand.neighborDc": {
+    "value": 3000,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "consumptive.fab": {
+    "value": 0.2,
+    "low": 0.1,
+    "high": 0.3,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "consumptive.coolingTower": {
+    "value": 0.75,
+    "low": 0.67,
+    "high": 0.83,
+    "status": "illustrative",
+    "source": "Derived: evaporation/makeup = (C-1)/C; 0.67 at 3 cycles, 0.83 at 6 (DOE BMP #10 mass balance). 0.75 = 4 cycles.",
+    "url": "https://www.energy.gov/node/849241"
+  },
+  "consumptive.office": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "consumptive.fire": {
+    "value": 0,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "consumptive.evap": {
+    "value": 0.85,
+    "low": 0.67,
+    "high": 0.9,
+    "status": "illustrative",
+    "source": "Derived: (C-1)/C cooling-tower mass balance",
+    "url": "https://www.energy.gov/node/849241"
+  },
+  "consumptive.gate": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "consumptive.dcLiquid": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "consumptive.chiller": {
+    "value": 0.7,
+    "low": 0.6,
+    "high": 0.83,
+    "status": "illustrative",
+    "source": "Derived: (C-1)/C cooling-tower mass balance",
+    "url": "https://www.energy.gov/node/849241"
+  },
+  "downtime.fab": {
+    "value": 1000000,
+    "low": 500000,
+    "high": 5000000,
+    "status": "sourced",
+    "source": "Schneider Electric 2026: >US$1-2M/hour for advanced fabs; TSMC 2018 virus ~NT$2.6B booked Q3 2018 for ~3 days (~US$1.2M/h, TSMC 2018 Annual Report p.230)",
+    "url": "https://blog.se.com/energy-management-energy-efficiency/2026/07/30/why-is-power-quality-so-critical-in-semiconductor-fabs/"
+  },
+  "downtime.datacenter": {
+    "value": 300000,
+    "low": 100000,
+    "high": 1000000,
+    "status": "sourced",
+    "source": "Ponemon 2016: US$8,851/min (~US$531k/h) average; Uptime 2024: 54% of last major outages >US$100k, 20% >US$1M",
+    "url": "https://statista.com/statistics/666816/united-states-data-centers-unplanned-outage-cost-per-minute"
+  },
+  "downtime.support": {
+    "value": 5000,
+    "low": 1000,
+    "high": 20000,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "downtime.fabArea": {
+    "value": 300000,
+    "low": 150000,
+    "high": 1500000,
+    "status": "illustrative",
+    "source": "Derived: ~30% of proposed whole-fab downtime (US$1M/h). No public sub-area figure.",
+    "url": null
+  },
+  "downtime.datacenterXL": {
+    "value": 600000,
+    "low": 300000,
+    "high": 2000000,
+    "status": "illustrative",
+    "source": "Derived: 2x proposed data-center default; Ponemon 2016 average US$531k/h; Uptime 2024: 20% of outages >US$1M.",
+    "url": "https://uptimeinstitute.com/resources/research-and-reports/annual-outage-analysis-2024"
+  },
+  "truck.capacity": {
+    "value": 20,
+    "low": 10,
+    "high": 25,
+    "status": "sourced",
+    "source": "DVHardware 19 Mar 2021; Wccftech 24 Feb 2021; Bloomberg Opinion: ~20 t per delivery",
+    "url": "https://www.dvhardware.net/article74998.html"
+  },
+  "truck.tripCost": {
+    "value": 1000,
+    "low": 300,
+    "high": 1500,
+    "status": "sourced",
+    "source": "Wccftech citing Liberty Times, 24 Feb 2021: 20 t tanker at $1,000/truck (NT$30,000). Single secondary source.",
+    "url": "https://wccftech.com/tsmc-using-water-tankers-for-chip-production-as-5nm-plant-faces-rationing/"
+  },
+  "truck.maxPerDay": {
+    "value": 200,
+    "low": 50,
+    "high": 500,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.normal.priceMultiplier": {
+    "value": 1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.normal.droughtDays": {
+    "value": 0,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.normal.cut": {
+    "value": 0,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.normal.groundwaterAvail": {
+    "value": 1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.drought2021.priceMultiplier": {
+    "value": 1,
+    "low": 1,
+    "high": 1.1,
+    "status": "illustrative",
+    "source": "No tariff change during the 2021 drought (dry-season surcharge introduced 2023).",
+    "url": null
+  },
+  "scenario.drought2021.droughtDays": {
+    "value": 125,
+    "low": 90,
+    "high": 180,
+    "status": "sourced",
+    "source": "Hsinchu industrial cuts in force by 24 Feb 2021 (Wccftech), lifted 30 Jun-1 Jul 2021 (Taipei Times)",
+    "url": "https://taipeitimes.com/News/biz/archives/2021/07/01/2003760077"
+  },
+  "scenario.drought2021.cut": {
+    "value": 0.11,
+    "low": 0.06,
+    "high": 0.17,
+    "status": "sourced",
+    "source": "Wccftech 24 Feb 2021: Hsinchu industrial cut 11% after an earlier 6%",
+    "url": "https://wccftech.com/tsmc-using-water-tankers-for-chip-production-as-5nm-plant-faces-rationing/"
+  },
+  "scenario.drought2021.cutEscalated": {
+    "value": 0.15,
+    "low": 0.13,
+    "high": 0.17,
+    "status": "sourced",
+    "source": "Taipei Times 1 Jun 2021: 15% industrial cut in Hsinchu under orange alert; 17% planned then postponed",
+    "url": "https://www.taipeitimes.com/News/front/archives/2021/06/01/2003758391"
+  },
+  "scenario.drought2021.groundwaterAvail": {
+    "value": 0.9,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.stress2035.priceMultiplier": {
+    "value": 1.3,
+    "low": 1.1,
+    "high": 1.5,
+    "status": "illustrative",
+    "source": "No direct projection; keep illustrative. Context: TCCIP 2024 projects lower dry-season rainfall and longer southern dry seasons; RCP8.5 supply -3.3 to -6.0% (north).",
+    "url": "https://tccip.ncdr.nat.gov.tw/ScientificReport2024/dl_chapter_4.aspx"
+  },
+  "scenario.stress2035.droughtDays": {
+    "value": 60,
+    "low": 30,
+    "high": 120,
+    "status": "illustrative",
+    "source": "No direct projection; keep illustrative. Context: TCCIP 2024 projects lower dry-season rainfall and longer southern dry seasons; RCP8.5 supply -3.3 to -6.0% (north).",
+    "url": "https://tccip.ncdr.nat.gov.tw/ScientificReport2024/dl_chapter_4.aspx"
+  },
+  "scenario.stress2035.cut": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.stress2035.groundwaterAvail": {
+    "value": 0.9,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.stress2050.priceMultiplier": {
+    "value": 1.7,
+    "low": 1.2,
+    "high": 2,
+    "status": "illustrative",
+    "source": "No direct projection; keep illustrative. Context: TCCIP 2024 projects lower dry-season rainfall and longer southern dry seasons; RCP8.5 supply -3.3 to -6.0% (north).",
+    "url": "https://tccip.ncdr.nat.gov.tw/ScientificReport2024/dl_chapter_4.aspx"
+  },
+  "scenario.stress2050.droughtDays": {
+    "value": 150,
+    "low": 60,
+    "high": 180,
+    "status": "illustrative",
+    "source": "No direct projection; keep illustrative. Context: TCCIP 2024 projects lower dry-season rainfall and longer southern dry seasons; RCP8.5 supply -3.3 to -6.0% (north).",
+    "url": "https://tccip.ncdr.nat.gov.tw/ScientificReport2024/dl_chapter_4.aspx"
+  },
+  "scenario.stress2050.cut": {
+    "value": 0.2,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "scenario.stress2050.groundwaterAvail": {
+    "value": 0.8,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.hours.municipal": {
+    "value": 48,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.hours.groundwater": {
+    "value": 72,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.hours.seawater": {
+    "value": 24,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.hours.recycled": {
+    "value": 24,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.hours.reclaimed": {
+    "value": 24,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.municipal.normal": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.municipal.drought2021": {
+    "value": 0.25,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.municipal.stress2035": {
+    "value": 0.15,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.municipal.stress2050": {
+    "value": 0.3,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.groundwater.normal": {
+    "value": 0.03,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.groundwater.drought2021": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.groundwater.stress2035": {
+    "value": 0.08,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.groundwater.stress2050": {
+    "value": 0.15,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.seawater.normal": {
+    "value": 0.02,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.seawater.drought2021": {
+    "value": 0.02,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.seawater.stress2035": {
+    "value": 0.02,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.seawater.stress2050": {
+    "value": 0.03,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.recycled.normal": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.recycled.drought2021": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.recycled.stress2035": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.recycled.stress2050": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.reclaimed.normal": {
+    "value": 0.05,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.reclaimed.drought2021": {
+    "value": 0.1,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.reclaimed.stress2035": {
+    "value": 0.08,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "risk.p.reclaimed.stress2050": {
+    "value": 0.12,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "coupling.elecMultiplier": {
+    "value": 1.25,
+    "low": 1,
+    "high": 1.5,
+    "status": "illustrative",
+    "source": "No drought-linked electricity pricing in Taiwan (regulated tariff, frozen in 2026). Keep illustrative.",
+    "url": null
+  },
+  "coupling.energyIntensiveAvail": {
+    "value": 0.85,
+    "low": null,
+    "high": null,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "finance.discountRate": {
+    "value": 0.08,
+    "low": 0.05,
+    "high": 0.12,
+    "status": "illustrative",
+    "source": "No good public source; keep illustrative.",
+    "url": null
+  },
+  "finance.horizonYears": {
+    "value": 10,
+    "low": 10,
+    "high": 20,
+    "status": "illustrative",
+    "source": "Convention; the CTCI/TSMC reclamation contract runs 20 years",
+    "url": null
+  },
+  "policy.surchargeThreshold": {
+    "value": 9000,
+    "low": 9000,
+    "high": 9000,
+    "status": "sourced",
+    "source": "MOEA water consumption fee: users >9,000 m3/month, dry season Nov-Apr only, nationwide, not STSP-specific (Focus Taiwan, 6 Jan 2023)",
+    "url": "https://focustaiwan.tw/business/202301060016"
+  }
+}
