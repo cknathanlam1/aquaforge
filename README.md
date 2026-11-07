@@ -6,8 +6,7 @@ Nature is a water-management simulator for industrial campuses (semiconductor fa
 
 The default demo is the **Taiwan Science Park** case study: the 2021 drought, 11-15% mandated water cuts, and trucked-in water.
 
-<!-- TODO: screenshot or GIF of the board + dashboard -->
-![Demo screenshot placeholder](docs/demo.gif)
+![Nature: isometric campus board with the Impact Dashboard](docs/screenshot.png)
 
 ## Quick start
 
@@ -26,18 +25,19 @@ Every dashboard number is a `Metric` with its formula and plugged-in inputs (cli
 
 | Metric | Formula |
 | --- | --- |
-| Annual water cost | Σ (source volume × price) × 365, + discharge and brine fees + drought surcharge + trucking |
+| Annual cost | (365 − drought days) × normal-day cost + drought days × drought-day cost + fixed O&M |
+| Daily cost | water purchases + water consumption fee + trucking + discharge + brine + energy + variable O&M + lost production |
 | Treatment energy cost | Σ (treated volume × kWh/m³) × electricity price × 365 |
 | O&M | Variable O&M (Σ volume × USD/m³ × 365) + fixed O&M (per new piece, per year) |
-| Capex | Σ capex of new (non-existing) pieces |
+| Capex | Σ capex of new pieces − capex the do-nothing baseline would also spend (e.g. a new building's conventional plumbing) |
 | Net annual savings | Baseline annual cost − Design annual cost |
 | Simple payback | Capex ÷ Net annual savings (none if savings ≤ 0) |
 | NPV | Σ<sub>t=1..N</sub> Net annual savings ÷ (1 + r)<sup>t</sup> − Capex, with r = discount rate, N = horizon |
-| Expected disruption cost | Σ over supplies of P(outage per year) × outage length × lost production per hour |
+| Expected disruption cost | Σ over supplies of P(outage per year) × max(0, outage hours − storage buffer hours) × lost production per hour, weighted across normal and drought days |
 | Risk-adjusted savings | Net annual savings + (Baseline expected disruption − Design expected disruption) |
-| Trucking | Tankers/day = shortfall ÷ 20 m³ per tanker; cost = tankers × trip cost |
+| Trucking | Tankers/day = ⌈shortfall ÷ 20 m³ per tanker⌉, capped by the site's tanker limit; cost = tankers × trip cost |
 | Mandated cut | Permitted withdrawal = normal withdrawal × (1 − cut); cut = 11% (initial) or 15% (escalated) in the 2021 scenario |
-| Surcharge | Applies to municipal use above 9,000 m³/month per user |
+| Water consumption fee | Taiwan MOEA dry-season fee: NT$3/m³ on municipal use above 9,000 m³/month per user, charged Nov–Apr only |
 | Cost of doing nothing | Baseline cost in the selected scenario − baseline cost in a normal year |
 
 ## Assumptions: what's sourced and what's not
@@ -47,7 +47,7 @@ All constants live in [`lib/assumptions.ts`](lib/assumptions.ts), each with a un
 - **sourced**: secondary-source figure from the Taiwan case study. Verify before presenting.
 - **illustrative**: placeholder. Editable. Replace with site data.
 
-**Capex, O&M, downtime cost, disruption probabilities, trucking cost, electricity price and water tariffs are illustrative placeholders**, not measured site data. The dollar outputs show how the model reasons, not a quote for a real facility.
+Water tariffs, electricity price, trucking cost, downtime cost, desal and recycling capacity are now **sourced from secondary reporting** (with links in the app and in `research/`) and should still be verified before presenting. **Most capex and O&M figures, disruption probabilities, the daily tanker limit, and the 2035/2050 stress multipliers remain illustrative placeholders**, not measured site data. The dollar outputs show how the model reasons, not a quote for a real facility.
 
 To change an assumption:
 
@@ -71,22 +71,22 @@ To change an assumption:
 
 Facts behind the default scenario (from `CASE_STUDY_FACTS` in `lib/assumptions.ts`). All are secondary sources: verify before presenting.
 
-<!-- TODO: add source links (the research workstream is collecting them). -->
+Each claim was checked against its source on 2026-11-07; see [`research/assumptions-research.md`](research/assumptions-research.md) for the fact-check, including three corrections to the original brief (the "~100 tankers/day" figure was a contracted fleet size, the TSMC reclamation plant runs at 20,000 t/day, and the blackout attribution is contested).
 
 | Fact | Source |
 | --- | --- |
-| 2021 was Taiwan's worst drought in 50+ years; no typhoon made landfall for the first time since 1964. | Earth.org (2021) |
-| TSMC used 156,000 t/day across Taiwan's three science parks in 2019; UMC used 31,500 t/day. | Bangkok Post, citing company reports (2021) |
-| Hsinchu Science Park uses about 170,000 t/day; Southern Taiwan Science Park about 175,000 t/day. | Earth.org; Tom's Hardware citing DigiTimes (2021) |
-| An average semiconductor fab consumes roughly 20,000 t/day. | China Water Risk via Fortune (2021) |
-| Fab water recycling ranges roughly 40-70% of process water; TSMC targets reusing each drop about 3.5 times. | Swarajya; Fortune (2021) |
-| Hsinchu-area government cuts of 11%, possibly rising to 15%. One tanker carries about 20 t; TSMC would need ~100 tankers/day. | DV Hardware citing Liberty Times (2021) |
-| TSMC and UMC trucked in ~3,600 t, about 2% of the Southern park's daily use. | Tom's Hardware (2021) |
-| Baoshan II reservoir (Hsinchu) was at 14.62% storage in Feb 2021. | The Register (2021) |
-| A new Hsinchu desalination facility treats about 13,000 t/day, small relative to park demand. | Earth.org (2021) |
-| Desalinated water was cited at about US$1 per tonne, affordable mainly to large companies. | Al Jazeera (2021) |
-| TSMC's Southern Taiwan Science Park recycling plant (Sept 2022) supplies about 10,000 t/day, planned to expand. | The Diplomat (2022) |
-| The drought also caused electricity blackouts via reduced hydropower. | Earth.org; Verdict (2021) |
+| 2021 was Taiwan's worst drought in over 50 years ("worst in 56 years"). In 2020 no typhoon made landfall for the first time since 1964. | [Earth.org (2022)](https://earth.org/the-taiwan-water-shortage-dilemma/) |
+| TSMC used about 156,000 metric tons of water a day across its operations in 2019. | [Verdict, citing TSMC's 2019 CSR report (2021)](https://www.verdict.co.uk/taiwan-drought-chip-supply/) |
+| Hsinchu Science Park uses about 170,000 t/day; Southern Taiwan Science Park about 175,000 t/day. | [Earth.org; Tom's Hardware citing DigiTimes (2021)](https://www.tomshardware.com/news/tsmc-umc-hit-by-drought-trucking-in-water) |
+| An average semiconductor fab consumes roughly 20,000 t/day. | [Fortune, citing China Water Risk (2021)](https://fortune.com/2021/06/12/chip-shortage-taiwan-drought-tsmc-water-usage/) |
+| TSMC recycled about 87% of its manufacturing water in 2019 and reuses each drop about 3.5 times. | [Fortune (2021)](https://fortune.com/2021/06/12/chip-shortage-taiwan-drought-tsmc-water-usage/) |
+| Hsinchu-area industrial cuts reached 11% in Feb 2021 and 15% by June. One tanker carries about 20 t, so an 11% cut at one 20,000 t/day fab is about 110 tanker trips a day. | [Wccftech; Taipei Times; DV Hardware (2021)](https://www.taipeitimes.com/News/front/archives/2021/06/01/2003758391) |
+| TSMC and UMC trucked in about 3,600 t, roughly 2% of a day's use in the Southern park. | [Tom's Hardware (2021)](https://www.tomshardware.com/news/tsmc-umc-hit-by-drought-trucking-in-water) |
+| Baoshan II reservoir (Hsinchu) was at 14.62% storage in Feb 2021. | [The Register (2021)](https://www.theregister.com/2021/02/24/tsmc_drought/) |
+| An emergency desalination unit completed in Hsinchu during the drought treats about 13,000 t/day, small relative to park demand. | [Taiwan Water Resources Agency (2021)](https://www.wra.gov.tw/wrapen/cp.aspx?n=44729) |
+| Desalinated water was cited at about US$1 per tonne, affordable mainly to companies like TSMC. | [Al Jazeera (2021)](https://www.aljazeera.com/news/2021/8/20/taiwan-water-woes) |
+| TSMC's Southern Taiwan Science Park reclamation plant started in Sept 2022 at 5,000 t/day, reached 20,000 t/day about a year later, and targets 30,000 t/day by 2026. | [CTCI (operator) (2022)](https://www.ctci.com/e-newsletter/EN/481/discover-reliable/article-01.html) |
+| Drought-reduced hydropower was cited as a factor in May 2021 power rationing (the 13 May blackout is usually attributed to a power plant fault). | [Verdict (2021)](https://www.verdict.co.uk/taiwan-drought-chip-supply/) |
 
 ## Project layout
 
