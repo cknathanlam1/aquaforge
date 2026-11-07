@@ -4,7 +4,7 @@ import type { BoardNode, EdgeResult, PieceType } from "@/lib/contract";
 import { useNature } from "@/lib/store";
 import { boardGeom, cellCenter, pipePath, proj, pts, tileAt, type BoardGeom, type Pt } from "@/lib/ui/iso";
 import { BOARD_COLORS as C, TIER_COLORS } from "@/lib/ui/pieceArt";
-import { useCatalog, useComparison } from "../hooks";
+import { useCatalog, useComparison, useWeakPoints } from "../hooks";
 import { DRAG_MIME } from "../Palette";
 import { BoardOverlays } from "./BoardOverlays";
 import { BoardPiece, type PieceVisual } from "./BoardPiece";
@@ -70,6 +70,12 @@ export function Board() {
   const demoFocus = useNature((s) => s.demoFocus);
   const store = useNature.getState;
   const catalog = useCatalog();
+  const weakPoints = useWeakPoints();
+  const weakByNode = useMemo(() => {
+    const m = new Map<string, "high" | "medium">();
+    for (const w of weakPoints) for (const id of w.nodeIds) if (m.get(id) !== "high") m.set(id, w.severity);
+    return m;
+  }, [weakPoints]);
   const comparison = useComparison();
   const geom = useMemo(() => boardGeom(size), [size]);
   const slab = useStaticSlab(geom);
@@ -118,9 +124,10 @@ export function Board() {
       pending: pending === node.id,
       focused: focusedId === node.id,
       demoFocus: demoFocus.includes(node.id),
+      weak: weakByNode.get(node.id) ?? null,
       shaking: shakeId === node.id,
     }));
-  }, [board.nodes, ghosts, catalog, comparison, stressNodes, selected, pending, focusedId, shakeId, demoFocus]);
+  }, [board.nodes, ghosts, catalog, comparison, stressNodes, selected, pending, focusedId, shakeId, demoFocus, weakByNode]);
 
   const pipes: PipeVisual[] = useMemo(() => {
     const byId = new Map(board.nodes.map((n) => [n.id, n]));

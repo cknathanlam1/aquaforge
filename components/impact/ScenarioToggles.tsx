@@ -3,7 +3,7 @@ import { useNature } from "@/lib/store";
 
 const TOGGLES = [
   ["truckingEnabled", "Trucked water", "Shortfalls are covered by tanker trucks, up to the daily cap."],
-  ["surchargeEnabled", "Municipal surcharge", "Surcharge on municipal use above the monthly threshold."],
+  ["surchargeEnabled", "Water consumption fee", "Taiwan MOEA dry-season fee (Nov–Apr) on municipal use above the monthly threshold."],
   ["couplingEnabled", "Energy-water coupling", "Drought days raise electricity prices and derate desal and recycling."],
 ] as const;
 

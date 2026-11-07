@@ -5,11 +5,17 @@ import { useComparison, useFmt } from "./hooks";
 import { Corners } from "./ui/Icon";
 import { InfoButton } from "./ui/InfoButton";
 
-/** Floating narration card for the Guided demo (bottom-center of the board). */
+const LEFT_PANEL_W = 256;
+const RIGHT_PANEL_W = 340;
+const DRAWER_W = 480;
+
+/** Floating narration card for the Guided demo, centered over the visible board area. */
 export function GuidedNarration() {
   const guided = useNature((s) => s.guided);
   const step = useNature((s) => s.demoStep);
   const popupOpen = useNature((s) => s.popup !== null);
+  const drawerOpen = useNature((s) => s.drawerOpen);
+  const leftOpen = useNature((s) => s.leftOpen);
   const { goToStep, exitGuided } = useNature.getState();
   const comparison = useComparison();
   const fmt = useFmt();
@@ -17,9 +23,15 @@ export function GuidedNarration() {
   const s = DEMO_STEPS[step];
   const metric = s.highlight ? comparison.metrics[s.highlight] : null;
   const last = step === DEMO_STEPS.length - 1;
+  const leftEdge = leftOpen ? LEFT_PANEL_W : 0;
+  const rightEdge = drawerOpen ? DRAWER_W : RIGHT_PANEL_W;
 
   return (
-    <section aria-label="Guided demo" className="blueprint anim-pop absolute bottom-[58px] left-1/2 w-[440px] -translate-x-1/2 border-2 border-[var(--ink)] bg-white p-3.5 shadow-[0_6px_0_#22323f33]">
+    <section
+      aria-label="Guided demo"
+      className="blueprint anim-pop fixed bottom-[64px] z-[58] w-[440px] -translate-x-1/2 border-2 border-[var(--ink)] bg-white p-3.5 shadow-[0_6px_0_#22323f33]"
+      style={{ left: `calc((${leftEdge}px + 100vw - ${rightEdge}px) / 2)` }}
+    >
       <Corners />
       <div className="kicker" style={{ color: "var(--orange-deep)" }}>Guided demo · step {step + 1} of {DEMO_STEPS.length}</div>
       <h2 className="heading m-0 mt-0.5 text-[22px] uppercase leading-tight">{s.title}</h2>

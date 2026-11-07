@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { withOverrides, type AssumptionValues } from "@/lib/assumptions";
-import type { Board, Comparison, Metric, PieceInfo, PieceType, ScenarioSettings } from "@/lib/contract";
+import type { Board, Comparison, Metric, PieceInfo, PieceType, ScenarioSettings, WeakPoint } from "@/lib/contract";
 import { useNature } from "@/lib/store";
 import { engine } from "@/lib/ui/engine";
 import { fmtHeadline, fmtMoney, fmtValue, type FormatCtx } from "@/lib/ui/format";
@@ -35,6 +35,22 @@ export function useComparison(): Comparison {
   const settings = useNature((s) => s.settings);
   const values = useValues();
   return useMemo(() => safeCompare(board, values, settings), [board, values, settings]);
+}
+
+/** engine.weakPoints(), only while the guided step asks for it. Never throws into render. */
+export function useWeakPoints(): WeakPoint[] {
+  const show = useNature((s) => s.showWeakPoints);
+  const board = useNature((s) => s.board);
+  const settings = useNature((s) => s.settings);
+  const values = useValues();
+  return useMemo(() => {
+    if (!show) return [];
+    try {
+      return engine.weakPoints(board, values, settings);
+    } catch {
+      return [];
+    }
+  }, [show, board, values, settings]);
 }
 
 const CATALOG: Record<PieceType, PieceInfo> = Object.fromEntries(engine.pieceCatalog().map((p) => [p.type, p])) as Record<PieceType, PieceInfo>;

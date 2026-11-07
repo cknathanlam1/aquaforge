@@ -16,6 +16,8 @@ export interface PieceVisual {
   shaking: boolean;
   /** Highlighted by the current guided-demo step. */
   demoFocus: boolean;
+  /** Flagged by engine.weakPoints() (guided step 1). */
+  weak: "high" | "medium" | null;
 }
 
 interface Badge { text: string; dot: string; bg: string }
@@ -23,6 +25,7 @@ interface Badge { text: string; dot: string; bg: string }
 function badgeFor(v: PieceVisual): Badge | null {
   const { node, info, result } = v;
   if (node.ghost) return { text: "AI suggests", dot: C.orange, bg: C.ghostTile };
+  if (v.weak) return { text: v.weak === "high" ? "⚠ Weak point" : "⚠ Watch", dot: v.weak === "high" ? C.red : C.orange, bg: v.weak === "high" ? C.redTint : C.ghostTile };
   if (v.atRisk) return { text: "Supply at risk!", dot: C.red, bg: C.redTint };
   if (info.outputTier) {
     const flow = result && result.outflow > 0 ? ` · ${fmtCompact(result.outflow)} m³/d` : "";
@@ -88,7 +91,10 @@ export const BoardPiece = memo(function BoardPiece({ geom, v, layer, onPointerDo
       onFocus={() => onFocus(node.id)}
       onBlur={() => onFocus(null)}
     >
-      {v.demoFocus && !ring && (
+      {v.weak && (
+        <polygon points={pts([[cx, cy - TILE_H - 8], [cx + TILE_W + 12, cy], [cx, cy + TILE_H + 8], [cx - TILE_W - 12, cy]])} fill={v.weak === "high" ? C.red : C.orange} fillOpacity={0.14} stroke={v.weak === "high" ? C.red : C.orange} strokeWidth={4} strokeDasharray="10 6" style={{ animation: "pulse 1.2s ease infinite" }} />
+      )}
+      {v.demoFocus && !ring && !v.weak && (
         <polygon points={pts([[cx, cy - TILE_H - 4], [cx + TILE_W + 6, cy], [cx, cy + TILE_H + 4], [cx - TILE_W - 6, cy]])} fill="none" stroke={C.orange} strokeWidth={4} strokeDasharray="8 6" style={{ animation: "pulse 1.2s ease infinite" }} />
       )}
       {ring && <polygon points={pts([[cx, cy - TILE_H - 2], [cx + TILE_W + 4, cy], [cx, cy + TILE_H + 2], [cx - TILE_W - 4, cy]])} fill="none" stroke={ringColor} strokeWidth={4} strokeDasharray="8 6" />}

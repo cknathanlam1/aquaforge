@@ -11,11 +11,13 @@ import { InfoButton } from "../ui/InfoButton";
 export function useHighlight(key: MetricKey): [boolean, React.RefObject<HTMLDivElement | null>] {
   const step = useNature((s) => s.demoStep);
   const guided = useNature((s) => s.guided);
+  const weakShown = useNature((s) => s.showWeakPoints);
   const on = guided && step !== null && DEMO_STEPS[step].highlight === key;
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (on) ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [on]);
+    // The weak-points list sits at the top of the panel; don't scroll it away.
+    if (on && !weakShown) ref.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [on, weakShown]);
   return [on, ref];
 }
 

@@ -66,7 +66,11 @@ export interface NatureState {
   demoStep: number | null;
   /** Node ids the current demo step wants highlighted. */
   demoFocus: string[];
+  /** Guided step 1: show engine.weakPoints() on the board and in the narration card. */
+  showWeakPoints: boolean;
   guided: boolean;
+  /** The preset or imported file the board was last loaded from (what Reset returns to). */
+  baseFile: ScenarioFile;
   toast: Toast | null;
 }
 
@@ -132,6 +136,8 @@ function later(key: string, ms: number, fn: () => void): void {
 
 const firstPreset = engine.presets()[0];
 
+const noDemo = { demoStep: null, demoFocus: [] as string[], showWeakPoints: false, guided: false };
+
 const transient = {
   selected: null, pending: null, popup: null, popupWhy: false, badPipe: null, shakeId: null, flash: [] as string[],
   advisor: null, acceptedCards: [] as string[], previewCard: null, answer: null, detailKey: null,
@@ -167,9 +173,8 @@ export const useNature = create<NatureStore>()((set, get) => {
     playing: true,
     question: "",
     asking: false,
-    demoStep: null,
-    demoFocus: [],
-    guided: false,
+    ...noDemo,
+    baseFile: firstPreset.file,
     toast: null,
     ...transient,
 
@@ -188,9 +193,8 @@ export const useNature = create<NatureStore>()((set, get) => {
         boardSize: boardSizeFor(file.board),
         settings: { ...file.settings },
         overrides: { ...file.assumptionOverrides },
-        demoStep: null,
-        demoFocus: [],
-        guided: false,
+        baseFile: file,
+        ...noDemo,
       }),
     toScenarioFile: () => {
       const s = get();
@@ -263,7 +267,7 @@ export const useNature = create<NatureStore>()((set, get) => {
     acceptRecommendation: () => {
       const s = get();
       if (!s.popup) return;
-      if (s.guided && s.demoStep === 2) return get().goToStep(3);
+      if (s.guided && s.demoStep === 1) return get().goToStep(2);
       const before = new Set(s.board.edges.map((e) => e.id));
       const board = engine.applyRecommendation(s.board, s.popup);
       setBoard(board, { popup: null, popupWhy: false, badPipe: null, mode: "build", advisor: null });
@@ -285,10 +289,27 @@ export const useNature = create<NatureStore>()((set, get) => {
       const size = Math.max(boardSizeFor(get().board), Math.min(MAX_BOARD_SIZE, n));
       set({ boardSize: size });
     },
+    /** Back to the loaded preset/file with default scenario settings; keeps assumption overrides. */
     resetBoard: () => {
       const s = get();
-      const p = engine.presets().find((x) => x.id === s.presetId) ?? firstPreset;
-      get().loadPreset(p.id);
+      set({
+        ...transient,
+        ...noDemo,
+        board: s.baseFile.board,
+        boardSize: boardSizeFor(s.baseFile.board),
+        settings: { ...DEFAULT_SETTINGS },
+        mode: "build",
+        tool: "select",
+        rightTab: "impact",
+        showWork: null,
+        drawerOpen: false,
+        drawerFocus: null,
+        doNothing2050: false,
+        question: "",
+        zoom: 1,
+        pan: { x: 0, y: 0 },
+      });
+      get().notify("Board reset. Assumption edits kept (Assumptions → Reset all clears them).");
     },
 
     runAdvisor: () => {
@@ -341,29 +362,37 @@ export const useNature = create<NatureStore>()((set, get) => {
         ...transient,
         presetId: firstPreset.id,
         scenarioName: firstPreset.name,
+        baseFile: firstPreset.file,
         board: d.board,
         boardSize: boardSizeFor(d.board),
         settings: d.settings,
         overrides: {},
-        mode: "build",
+        mode: d.mode,
+        leftOpen: true,
         tool: "select",
         rightTab: "impact",
         popup: d.popup,
+        popupWhy: false,
         badPipe: d.popup?.from && d.popup.to ? { from: d.popup.from, to: d.popup.to } : null,
         shakeId: d.popup?.to ?? null,
         demoStep: step,
         demoFocus: d.focus,
+        showWeakPoints: d.showWeakPoints,
         doNothing2050: false,
         showWork: null,
+        drawerOpen: d.panel === "assumptions",
+        drawerFocus: null,
       });
       if (d.popup) later("shake", SHAKE_MS, () => set({ shakeId: null }));
+      // advise() is heavy: run it once, on entering the step that asks for it.
+      if (d.runAdvisor) get().runAdvisor();
     },
     startGuided: () => {
       set({ guided: true });
       get().goToStep(0);
       set({ guided: true });
     },
-    exitGuided: () => set({ guided: false, demoStep: null, demoFocus: [] }),
+    exitGuided: () => set({ ...noDemo, drawerOpen: false }),
     notify: (text, kind = "info") => {
       set({ toast: { text, kind } });
       later("toast", TOAST_MS, () => set({ toast: null }));

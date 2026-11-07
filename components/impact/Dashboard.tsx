@@ -8,6 +8,7 @@ import { InfoButton } from "../ui/InfoButton";
 import { CostChart } from "./CostChart";
 import { MetricCard, SubMetric, useHighlight } from "./MetricCard";
 import { RiskGauge } from "./RiskGauge";
+import { WeakPoints } from "./WeakPoints";
 
 const POS = "var(--green-deep)";
 const NEG = "var(--red-deep)";
@@ -81,6 +82,7 @@ export function Dashboard() {
   return (
     <div className="flex flex-col gap-2.5">
       <div className="kicker">Impact · tap a card for details</div>
+      <WeakPoints />
       <SavingsHero />
       <DoNothingHero />
       <div className="grid grid-cols-2 gap-2.5">

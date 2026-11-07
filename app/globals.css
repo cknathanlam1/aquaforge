@@ -104,6 +104,7 @@ button, input, select { font-family: inherit; color: inherit; }
 .nbtn[aria-pressed="true"], .nbtn.is-on { background: var(--ink); color: var(--white); }
 .nbtn:disabled { opacity: 0.45; cursor: not-allowed; }
 .nbtn-sm { font-size: 13px; padding: 6px 10px; }
+header .nbtn-sm { padding-left: 8px; padding-right: 8px; }
 .nbtn-icon { padding: 0; width: 34px; height: 34px; }
 .nbtn-orange { background: var(--orange); color: var(--color-text); border-width: 2px; font-weight: 700; box-shadow: 0 3px 0 var(--ink); }
 .nbtn-orange:hover { background: #f59a3e; }

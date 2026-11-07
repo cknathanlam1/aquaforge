@@ -105,10 +105,18 @@ export function Header() {
           <button type="button" className="nbtn nbtn-icon" aria-label="Copy share link" title="Copy share link" onClick={onShare}>
             <Icon name="link" />
           </button>
-          <button type="button" className="nbtn nbtn-icon" aria-label="Reset board" title="Reset board" onClick={resetBoard}>
-            <Icon name="rotate" />
-          </button>
         </div>
+        <button
+          type="button"
+          className="nbtn nbtn-sm"
+          title="Reset the board to the loaded project and default scenario settings (keeps assumption edits)"
+          onClick={() => {
+            if (location.hash) history.replaceState(null, "", location.pathname);
+            resetBoard();
+          }}
+        >
+          <Icon name="rotate" size={15} /> Reset
+        </button>
         <input ref={fileRef} type="file" accept="application/json,.json" className="hidden" onChange={(e) => onImport(e.target.files?.[0])} />
       </div>
     </header>
