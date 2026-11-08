@@ -21,6 +21,12 @@ function file(name: string, b: Board): ScenarioFile {
  */
 export const TAIWAN_SCIENCE_PARK: Board = board([["n1", "fab", 5, 4]], []);
 
+/**
+ * The guided demo's opening board: a data center campus in a Taiwan science park, and nothing
+ * else. Its cooling needs Tier 3 water, which is where Harmony (batch RO) beats regular desal.
+ */
+export const TAIWAN_DATA_CENTER: Board = board([["n1", "datacenter", 5, 4]], []);
+
 /** One fab on reservoir (municipal) water with its conventional RO + UPW train (tests, comparisons). */
 export const TAIWAN_CONVENTIONAL: Board = board(
   [
@@ -105,7 +111,8 @@ const FAB_PLUS_DC: Board = board(
 );
 
 export const PRESETS: Array<{ id: string; name: string; file: ScenarioFile }> = [
-  { id: "taiwan", name: "Taiwan Science Park", file: file("Taiwan Science Park", TAIWAN_SCIENCE_PARK) },
+  { id: "taiwan-dc", name: "Taiwan data center", file: file("Taiwan data center", TAIWAN_DATA_CENTER) },
+  { id: "taiwan", name: "Taiwan Science Park fab", file: file("Taiwan Science Park fab", TAIWAN_SCIENCE_PARK) },
   { id: "fab", name: "Semiconductor fab", file: file("Semiconductor fab", SEMICONDUCTOR_FAB) },
   { id: "datacenter", name: "Data center campus", file: file("Data center campus", DATA_CENTER_CAMPUS) },
   { id: "fab-dc", name: "Fab + data center", file: file("Fab + data center", FAB_PLUS_DC) },

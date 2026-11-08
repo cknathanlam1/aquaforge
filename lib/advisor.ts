@@ -10,6 +10,7 @@ import type { AdvisorCard, AdvisorResult, Board, BoardNode, PieceType, RuleResul
 import { evaluate, type EvaluationDetail, npv, simplePayback } from "./finance";
 import { PIECES } from "./pieces";
 import { evaluateRules, requiredTier } from "./rules";
+import { harmonySwapBoard } from "./suggestions";
 
 const MAX_CARDS = 5;
 const GREEDY_STEPS = 3;
@@ -201,6 +202,19 @@ function downtimeExposure(board: Board, c: BoardNode, v: AssumptionValues): numb
 
 const STORAGE_TARGETS = 2;
 
+function harmonySwap(board: Board): Candidate | null {
+  const desal = board.nodes.find((n) => n.type === "desal" && harmonySwapBoard(board, n.id));
+  const next = desal ? harmonySwapBoard(board, desal.id) : null;
+  if (!desal || !next) return null;
+  return {
+    id: `harmony:${desal.id}`,
+    title: "Switch to Harmony desalination",
+    pieces: ["harmony"],
+    board: next,
+    why: (d) => `Tier 3 is all the cooling needs; batch RO saves ${Math.round(-d.energy).toLocaleString("en-US")} kWh/day and makes less brine.`,
+  };
+}
+
 export function generateCandidates(input: Board, v: AssumptionValues): Candidate[] {
   const board = activeBoard(input);
   const highValue = consumersOf(board)
@@ -213,6 +227,7 @@ export function generateCandidates(input: Board, v: AssumptionValues): Candidate
   const list = [
     recycleLoop(board),
     desalBundle(board),
+    harmonySwap(board),
     ...highValue.map((c) => storageFor(board, c)),
     efficiency(board, "leak"),
     efficiency(board, "meter"),

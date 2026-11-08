@@ -15,13 +15,13 @@ import type { AssumptionKey, AssumptionValues } from "./assumptions";
 
 export const PIECE_TYPES = [
   // water sources
-  "municipal", "river", "well", "rain", "seawater", "desal", "nearby",
+  "municipal", "river", "well", "rain", "seawater", "desal", "harmony", "nearby",
   // treatment
   "filter", "softener", "ro", "wwt", "recycle", "polish", "brine",
   // semiconductor fab
   "fab", "clean", "wet", "cmp", "upw", "chem",
   // data center campus
-  "server", "server2", "tower", "chiller", "evap", "closed", "tank",
+  "datacenter", "server", "server2", "tower", "chiller", "evap", "closed", "tank",
   "gen", "ups", "sub", "net", "fire", "gate", "office",
   // efficiency
   "leak", "meter", "opt",
@@ -320,6 +320,31 @@ export interface WeakPoint {
   fixPieces: PieceType[];
 }
 
+// ---------- Suggestions ----------
+
+/**
+ * A better option for a design that already works (not a rule violation). The piece at `nodeId`
+ * glows as a suggestion; clicking it shows `reasons`; accepting replaces the board with `board`.
+ */
+export interface Suggestion {
+  id: string;
+  kind: "swap";
+  nodeId: string;
+  from: PieceType;
+  to: PieceType;
+  title: string;
+  /** Plain-English reasons, each built from engine numbers. */
+  reasons: string[];
+  /** Change vs the current design (positive = better), USD/yr. */
+  annualSavings: number;
+  riskAdjustedSavings: number;
+  /** Extra capex the swap needs (negative = cheaper), USD. */
+  capexDelta: number;
+  energySavedKwhPerDay: number;
+  brineReducedM3PerDay: number;
+  board: Board;
+}
+
 // ---------- Engine API (implemented in lib/engine.ts by workstream A) ----------
 
 export interface EngineApi {
@@ -336,6 +361,8 @@ export interface EngineApi {
   advise(board: Board, values: AssumptionValues, settings: ScenarioSettings): AdvisorResult;
   /** Vulnerabilities, judged against a 2021-type drought, ranked by severity then dollars. */
   weakPoints(board: Board, values: AssumptionValues, settings: ScenarioSettings): WeakPoint[];
+  /** Better options for pieces that already work (e.g. regular desal → Harmony). */
+  suggestions(board: Board, values: AssumptionValues, settings: ScenarioSettings): Suggestion[];
 }
 
 // ---------- Advise API (app/api/advise, workstream D) ----------

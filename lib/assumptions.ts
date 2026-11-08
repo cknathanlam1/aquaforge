@@ -18,6 +18,7 @@ export type AssumptionGroup =
   | "Policy"
   | "Energy"
   | "Treatment performance"
+  | "Harmony desalination"
   | "Capacity"
   | "Capex"
   | "O&M"
@@ -202,6 +203,38 @@ export const DEFAULT_ASSUMPTIONS = {
     "Al Jazeera, E. Hale, 20 Aug 2021: 'about $1 per tonne' (verified on page) (https://www.aljazeera.com/news/2021/8/20/taiwan-water-woes)", "Reference only. Desal cost in the engine is energy + non-energy opex, which defaults to this anchor.",
   ),
 
+  // ---------- Harmony desalination (batch RO), entered separately from regular desal ----------
+  "harmony.energy": src(
+    3.15,
+    "kWh/m³",
+    "Harmony batch-RO energy",
+    "Harmony desalination",
+    "Company claim via MIT J-WAFS (2024): batch RO uses about 10% less energy than conventional RO. 3.15 = regular desal 3.5 kWh/m³ × 0.9. Verify against Harmony's own data. (https://jwafs.mit.edu/news/2024/former-student-j-wafs-director-makes-strides-desalination)",
+  ),
+  "harmony.brineFraction": ill(
+    0.4,
+    "fraction of feed",
+    "Harmony brine volume fraction",
+    "Harmony desalination",
+    "Harmony says batch RO exceeds standard RO recovery limits by rinsing the membrane (MassCEC; MIT J-WAFS). The size of the gain isn't published: 0.40 (60% recovery vs 45% for regular SWRO) is a placeholder.",
+  ),
+  "varcost.harmony": ill(
+    0.45,
+    "USD/m³",
+    "Harmony non-energy operating cost",
+    "Harmony desalination",
+    "Regular backwashing and feed recirculation limit scaling and membrane replacement (company claim). Placeholder: regular desal's 0.53 less about 15%.",
+  ),
+  "cap.harmony": ill(
+    13000,
+    "m³/day",
+    "Harmony plant capacity",
+    "Harmony desalination",
+    "Assumed commercial scale, matched to a regular plant for a like-for-like comparison. Harmony's published units are pilots (Baby Searay, 5 m³/day, 2025).",
+  ),
+  "capex.harmony": ill(40_000_000, "USD", "Harmony plant capex", "Harmony desalination", "No public pricing; set equal to regular desal so the comparison isolates operating differences."),
+  "om.harmony": ill(1_400_000, "USD/yr", "Harmony plant fixed O&M", "Harmony desalination", "No public figure; placeholder slightly below regular desal for less membrane handling."),
+
   // ---------- Capacity (m³/day of product) ----------
   "cap.municipal": ill(200000, "m³/day", "Municipal allocation available to the site", "Capacity"),
   "cap.groundwater": ill(5000, "m³/day", "Groundwater well capacity", "Capacity"),
@@ -300,6 +333,13 @@ export const DEFAULT_ASSUMPTIONS = {
   "demand.fire": ill(20, "m³/day", "Fire suppression standby", "Demand"),
   "demand.evap": ill(3500, "m³/day", "Evaporative cooling demand", "Demand"),
   "demand.gate": ill(5, "m³/day", "Security gatehouse demand", "Demand"),
+  "demand.datacenter": ill(
+    8600,
+    "m³/day",
+    "Data center campus water demand",
+    "Demand",
+    "Derived: ~200 MW of IT load at 1.8 L/kWh (LBNL 2016 average WUE) ≈ 43 m³/day per MW. Evaporative-heavy sites can use 2-4× more.",
+  ),
   "demand.dcLiquid": ill(400, "m³/day", "Closed-loop liquid cooling makeup", "Demand"),
   "demand.chiller": ill(800, "m³/day", "Chiller makeup", "Demand"),
   "demand.neighborFab": ill(20000, "m³/day", "Neighbor fab demand", "Demand", "Defaults to the single-fab figure."),
@@ -311,6 +351,13 @@ export const DEFAULT_ASSUMPTIONS = {
   "consumptive.fire": ill(0, "fraction", "Fire suppression consumptive share", "Demand"),
   "consumptive.evap": ill(0.85, "fraction", "Evaporative cooling consumptive share", "Demand"),
   "consumptive.gate": ill(0.1, "fraction", "Gatehouse consumptive share", "Demand"),
+  "consumptive.datacenter": ill(
+    0.75,
+    "fraction",
+    "Data center consumptive share",
+    "Demand",
+    "Cooling towers at 4 cycles of concentration evaporate (C-1)/C = 75% of makeup (DOE cooling-tower mass balance).",
+  ),
   "consumptive.dcLiquid": ill(0.1, "fraction", "Liquid cooling consumptive share", "Demand"),
   "consumptive.chiller": ill(0.7, "fraction", "Chiller consumptive share", "Demand"),
 

@@ -22,14 +22,15 @@ describe("advisor", () => {
   );
 
   it("on rule-clean boards, no card has any violation at all", () => {
-    for (const p of PRESETS.slice(1)) {
+    for (const p of PRESETS.filter((x) => !x.id.startsWith("taiwan"))) {
       expect(blocking(p.file.board)).toEqual([]);
       for (const card of advise(p.file.board, v, settings({ scenarioId: "drought2021" })).cards) expect(blocking(card.board)).toEqual([]);
     }
   });
 
   it("brings the fab-only Taiwan board online", () => {
-    const { cards } = advise(PRESETS[0].file.board, v, settings({ scenarioId: "drought2021" }));
+    const fabOnly = PRESETS.find((p) => p.id === "taiwan")?.file.board ?? TAIWAN_CONVENTIONAL;
+    const { cards } = advise(fabOnly, v, settings({ scenarioId: "drought2021" }));
     expect(cards.some((c) => c.pieces.includes("desal") && blocking(c.board).length === 0)).toBe(true);
   });
 
@@ -51,7 +52,7 @@ describe("advisor", () => {
   });
 
   it("the desal bundle always ships with brine disposal", () => {
-    const desal = generateCandidates(PRESETS[0].file.board, v).find((c) => c.id === "desal");
+    const desal = generateCandidates(TAIWAN_CONVENTIONAL, v).find((c) => c.id === "desal");
     expect(desal?.pieces).toEqual(expect.arrayContaining(["seawater", "desal", "brine"]));
   });
 });

@@ -25,7 +25,7 @@ describe("water balance", () => {
 
   it.each([
     // Taiwan Science Park opens fab-only (no source), so it has nothing to balance.
-    ...PRESETS.filter((p) => p.id !== "taiwan").map((p) => [p.name, p.file.board] as const),
+    ...PRESETS.filter((p) => !p.id.startsWith("taiwan")).map((p) => [p.name, p.file.board] as const),
     ["Taiwan fab, conventional supply", TAIWAN_CONVENTIONAL] as const,
     ["recycle + desal + tank", resilienceBoard()] as const,
     ["neighbor shares the loop", neighborBoard()] as const,

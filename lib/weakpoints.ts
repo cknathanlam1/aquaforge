@@ -8,7 +8,7 @@ import { activeBoard } from "./board";
 import type { Board, PieceType, ScenarioSettings, WeakPoint } from "./contract";
 import { evaluate } from "./finance";
 import { PIECES } from "./pieces";
-import { evaluateRules } from "./rules";
+import { evaluateRules, requiredTier } from "./rules";
 import { DAYS_PER_YEAR, HOURS_PER_DAY } from "./units";
 
 const EXPOSED_SHARE_HIGH = 0.8;
@@ -54,8 +54,8 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
       lostPerHour: lost > 0 ? lost : undefined,
       fix: ultrapure
         ? "Add a water source and treat it to ultrapure: a seawater intake into a desalination plant (Tier 4), then ultrapure polishing (Tier 5). The sea can't be cut in a drought, so it also makes the supply chain more resilient. A second, independent source (municipal water through RO) means one outage can't stop production."
-        : "Add a water source and the treatment this building needs. Two independent sources mean one drought or outage can't stop it.",
-      fixPieces: ultrapure ? ["seawater", "desal", "polish", "brine"] : ["municipal"],
+        : `Add a water source a drought can't cut: a seawater intake into a desalination plant, with brine disposal. The ${def.name.toLowerCase()} needs Tier ${requiredTier(def.type) ?? 2}. A second, independent source means one outage can't stop it.`,
+      fixPieces: ultrapure ? ["seawater", "desal", "polish", "brine"] : ["seawater", "desal", "brine"],
     });
   }
   const normal = drought.normalDay;

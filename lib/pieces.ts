@@ -140,6 +140,17 @@ const DEFS: PieceDef[] = [
     capexKey: "capex.desal", omKey: "om.desal",
     tradeoffs: ["+ big energy use", "needs brine disposal"],
   },
+  {
+    type: "harmony", name: "Harmony desalination", group: "src", role: "treatment",
+    description: "Batch reverse osmosis: less energy and less brine than regular desal, but it stops at Tier 3 (process-grade). Right for cooling, not for chips.",
+    ports: { in: ["supply"], out: ["supply", "brine"] },
+    treatment: {
+      outTier: 3, capacityKey: "cap.harmony", brineFractionKey: "harmony.brineFraction", energyKey: "harmony.energy",
+      varcostKey: "varcost.harmony", reject: "brine", energyIntensive: true,
+    },
+    capexKey: "capex.harmony", omKey: "om.harmony",
+    tradeoffs: ["only reaches Tier 3", "needs brine disposal", "pilot-scale today"],
+  },
   source("nearby", "Nearby plant (shared)", "A neighbor's reclaimed-water plant: Tier 3, a second supplier.", {
     cls: "reclaimed", tier: 3, capacityKey: "cap.reclaimed", priceKey: "price.reclaimed", priority: 2, drought: "none",
   }, { group: "src", capexKey: "capex.reclaimed", omKey: "om.reclaimed", tradeoffs: ["shared contract", "Tier 3 only"] }),
@@ -201,6 +212,7 @@ const DEFS: PieceDef[] = [
   inert("chem", "Chemical storage", "fab", "No water connection."),
 
   // ---------------- Data center campus ----------------
+  consumer("datacenter", "Data center campus", "dc", "Hyperscale campus: cooling makeup needs process-grade (Tier 3) water.", { kind: "datacenter", demandKey: "demand.datacenter", consumptiveKey: "consumptive.datacenter", downtimeKey: "downtime.datacenter" }),
   { type: "server", name: "Server hall", group: "dc", role: "server", description: "Needs cooling, not water. Offline without a working cooling piece.", ports: { in: ["cooling"], out: [] }, consumer: { kind: "datacenter", downtimeKey: "downtime.datacenter" }, tradeoffs: [] },
   { type: "server2", name: "Server hall XL", group: "dc", role: "server", description: "Bigger hall, bigger downtime cost.", ports: { in: ["cooling"], out: [] }, consumer: { kind: "datacenter", downtimeKey: "downtime.datacenterXL" }, tradeoffs: [] },
   consumer("tower", "Cooling tower", "dc", "Evaporative tower makeup: Tier 2+.", { kind: "cooling", demandKey: "demand.coolingTower", consumptiveKey: "consumptive.coolingTower" }, COOL),

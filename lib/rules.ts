@@ -31,6 +31,7 @@ export const TIER_REQUIREMENTS: Partial<Record<PieceType, TierRequirement>> = {
   evap: { minTier: 2, why: "evaporative cooling needs filtered water to limit scale" },
   neighbor_dc: { minTier: 2, why: "cooling makeup needs filtered water" },
   closed: { minTier: 3, why: "closed-loop liquid cooling needs process-grade water to protect cold plates" },
+  datacenter: { minTier: 3, why: "running cooling towers at high cycles of concentration needs low-mineral, process-grade makeup water" },
   office: { minTier: 2, why: "people need potable-grade (filtered) water" },
   gate: { minTier: 2, why: "people need potable-grade (filtered) water" },
   fire: { minTier: 2, why: "fire suppression tanks need filtered water so nozzles don't clog" },
@@ -48,7 +49,7 @@ export const STEP_EXPLANATIONS: Partial<Record<PieceType, string>> = {
 const POLISHERS: ReadonlySet<PieceType> = new Set<PieceType>(["polish", "upw"]);
 
 /** Companion pieces added with a recommendation (desal always needs brine disposal). */
-export const COMPANIONS: Partial<Record<PieceType, PieceType[]>> = { desal: ["brine"] };
+export const COMPANIONS: Partial<Record<PieceType, PieceType[]>> = { desal: ["brine"], harmony: ["brine"] };
 
 export function requiredTier(type: PieceType): Tier | null {
   const def = PIECES[type];
@@ -371,11 +372,11 @@ export const RULES: ReadonlyArray<EdgeRule | NodeRule> = [
     id: "desal-brine",
     scope: "node",
     evaluate: (board, a, n) => {
-      if (n.type !== "desal") return null;
+      if (PIECES[n.type].treatment?.reject !== "brine") return null;
       const hasBrine = (a.validOut[n.id] ?? []).some((e) => a.edges[e.id]?.kind === "brine");
       return hasBrine
         ? null
-        : fail("desal-brine", "warning", "Desal plant needs brine disposal", "Desalination makes clean water plus a concentrated salty stream (brine). Where will the salty leftovers go? Add Brine disposal and connect it.", { nodeId: n.id, recommendedPieces: ["brine"] });
+        : fail("desal-brine", "warning", `${PIECES[n.type].name} needs brine disposal`, "Desalination makes clean water plus a concentrated salty stream (brine). Where will the salty leftovers go? Add Brine disposal and connect it.", { nodeId: n.id, recommendedPieces: ["brine"] });
     },
   },
   {
