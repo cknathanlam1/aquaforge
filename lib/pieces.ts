@@ -244,6 +244,8 @@ const DEFS: PieceDef[] = [
 
   // ---------------- Neighbors ----------------
   consumer("neighbor_fab", "Neighbor fab", "nbr", "Another company's fab in the park: Tier 5.", { kind: "fab", demandKey: "demand.neighborFab", consumptiveKey: "consumptive.fab", downtimeKey: "downtime.fab" }),
+  consumer("factory", "Manufacturing plant", "nbr", "A park tenant's plant: process and washdown water at Tier 2.", { kind: "support", demandKey: "demand.factory", consumptiveKey: "consumptive.factory", downtimeKey: "downtime.factory" }),
+  consumer("concrete", "Concrete & aggregate plant", "nbr", "Dust suppression and truck washdown: raw (Tier 1) water is fine, including other buildings' untreated used water.", { kind: "support", demandKey: "demand.concrete", consumptiveKey: "consumptive.concrete", downtimeKey: "downtime.concrete" }, { in: ["supply", "wastewater"], out: ["wastewater"] }),
   consumer("neighbor_dc", "Neighbor data center", "nbr", "Another company's data center: Tier 2 cooling.", { kind: "datacenter", demandKey: "demand.neighborDc", consumptiveKey: "consumptive.coolingTower", downtimeKey: "downtime.datacenter" }),
 ];
 

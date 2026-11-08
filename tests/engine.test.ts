@@ -14,14 +14,15 @@ describe("engine facade", () => {
     expect(catalog.find((p) => p.type === "desal")).toMatchObject({ outputTier: 4, capexKey: "capex.desal" });
   });
 
-  it("ships five presets with the Taiwan data center first; only the two Taiwan boards start with no water", () => {
+  it("ships six presets, opening on a blank park; the Taiwan boards start with no water", () => {
     const presets = engine.presets();
-    expect(presets.map((p) => p.name)).toEqual(["Taiwan data center", "Taiwan Science Park fab", "Semiconductor fab", "Data center campus", "Fab + data center"]);
-    for (const p of presets.slice(0, 2)) {
-      expect(engine.evaluateRules(p.file.board).filter((r) => r.severity !== "info").map((r) => r.ruleId)).toEqual(["consumer-offline"]);
+    expect(presets.map((p) => p.name)).toEqual(["Blank park", "Taiwan industrial park", "Taiwan Science Park fab", "Semiconductor fab", "Data center campus", "Fab + data center"]);
+    expect(presets[0].file.board).toEqual({ nodes: [], edges: [] });
+    for (const p of presets.slice(1, 3)) {
       expect(p.file.board.edges).toEqual([]);
+      expect(engine.evaluateRules(p.file.board).filter((r) => r.severity !== "info").every((r) => r.ruleId === "consumer-offline")).toBe(true);
     }
-    for (const p of presets.slice(2)) expect(engine.evaluateRules(p.file.board).filter((r) => r.severity !== "info")).toEqual([]);
+    for (const p of presets.slice(3)) expect(engine.evaluateRules(p.file.board).filter((r) => r.severity !== "info")).toEqual([]);
   });
 
   it("compare() works through the facade", () => {

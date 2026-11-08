@@ -28,7 +28,7 @@ export const PIECE_TYPES = [
   // connectors / sinks
   "valve", "pump", "discharge",
   // neighbors
-  "neighbor_fab", "neighbor_dc",
+  "neighbor_fab", "neighbor_dc", "factory", "concrete",
 ] as const;
 
 export type PieceType = (typeof PIECE_TYPES)[number];

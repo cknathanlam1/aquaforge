@@ -163,6 +163,10 @@ export function simulateDay(input: Board, v: AssumptionValues, cond: SimConditio
     });
 
   const reuseNodes = board.nodes.filter((n) => PIECES[n.type].role === "reuse");
+  /** Consumers that take other buildings' used water directly, untreated (e.g. dust suppression). */
+  const directReuse = consumers.filter((c) => PIECES[c.node.type].ports.in.includes("wastewater"));
+  const directReuseIds = new Set(directReuse.map((c) => c.node.id));
+  const loopNodes = [...reuseNodes.map((n) => n.id), ...directReuse.map((c) => c.node.id)];
   const wastewaterOut = new Map<string, BoardEdge[]>();
   for (const n of board.nodes) wastewaterOut.set(n.id, (analysis.validOut[n.id] ?? []).filter((e) => kindOf(e) === "wastewater"));
 
@@ -200,6 +204,13 @@ export function simulateDay(input: Board, v: AssumptionValues, cond: SimConditio
         const available = cond.disabled.has(n.id) ? 0 : recoveryOf(n, v) * (wastewaterIn.get(n.id) ?? 0);
         s.capLeft.set(n.id, Math.min(treatmentCapacity(n), available));
       }
+    }
+
+    // Direct reuse arrives first: it is free water already on site.
+    for (const c of directReuse) {
+      const reused = Math.min(c.demand, wastewaterIn.get(c.node.id) ?? 0);
+      add(s.delivered, c.node.id, reused);
+      add(s.inflow, c.node.id, reused);
     }
 
     let consumerId = "";
@@ -296,13 +307,22 @@ export function simulateDay(input: Board, v: AssumptionValues, cond: SimConditio
     const toReuse = new Map<string, number>();
     const edgeFlow = new Map<string, number>();
     const feedLeft = new Map(reuseFeedCap);
+    // A direct-reuse building takes at most its own demand.
+    const directLeft = new Map(directReuse.map((c) => [c.node.id, c.demand]));
     let toDischarge = 0;
     for (const c of consumers) {
       const spec = PIECES[c.node.type].consumer;
       let ww = (s.delivered.get(c.node.id) ?? 0) * (1 - val(v, spec?.consumptiveKey));
       const outs = wastewaterOut.get(c.node.id) ?? [];
+      for (const e of outs.filter((x) => directReuseIds.has(x.to) && x.to !== c.node.id)) {
+        const take = Math.min(ww, directLeft.get(e.to) ?? 0);
+        directLeft.set(e.to, (directLeft.get(e.to) ?? 0) - take);
+        add(toReuse, e.to, take);
+        add(edgeFlow, e.id, take);
+        ww -= take;
+      }
       const reuseOuts = outs.filter((e) => PIECES[(byId.get(e.to) as BoardNode).type].role === "reuse");
-      const dischargeOuts = outs.filter((e) => !reuseOuts.includes(e));
+      const dischargeOuts = outs.filter((e) => !reuseOuts.includes(e) && !directReuseIds.has(e.to));
       for (const e of reuseOuts) {
         const take = Math.min(ww, feedLeft.get(e.to) ?? 0);
         feedLeft.set(e.to, (feedLeft.get(e.to) ?? 0) - take);
@@ -324,8 +344,8 @@ export function simulateDay(input: Board, v: AssumptionValues, cond: SimConditio
   let wastewaterIn = new Map<string, number>();
   let state = runDispatch(wastewaterIn);
   let routed = routeWastewater(state);
-  for (let i = 0; i < MAX_ITERATIONS && reuseNodes.length; i++) {
-    const delta = Math.max(0, ...reuseNodes.map((n) => Math.abs((routed.toReuse.get(n.id) ?? 0) - (wastewaterIn.get(n.id) ?? 0))));
+  for (let i = 0; i < MAX_ITERATIONS && loopNodes.length; i++) {
+    const delta = Math.max(0, ...loopNodes.map((id) => Math.abs((routed.toReuse.get(id) ?? 0) - (wastewaterIn.get(id) ?? 0))));
     if (delta < CONVERGENCE_TOL && i > 0) break;
     wastewaterIn = routed.toReuse;
     state = runDispatch(wastewaterIn);
@@ -418,7 +438,8 @@ export function simulateDay(input: Board, v: AssumptionValues, cond: SimConditio
 
   const withdrawn = sources.reduce((sum, s) => sum + s.base + s.trucked, 0);
   const trucked = sources.reduce((sum, s) => sum + s.trucked, 0);
-  const recycledSupply = reuseNodes.reduce((sum, n) => sum + (produced[n.id] ?? 0), 0);
+  const directReused = directReuse.reduce((sum, c) => sum + Math.min(c.demand, wastewaterIn.get(c.node.id) ?? 0), 0);
+  const recycledSupply = reuseNodes.reduce((sum, n) => sum + (produced[n.id] ?? 0), 0) + directReused;
   const demand = consumers.reduce((sum, c) => sum + c.demand, 0);
   const delivered = consumers.reduce((sum, c) => sum + (state.delivered.get(c.node.id) ?? 0), 0);
   const truckCap = Math.max(EPS, v["truck.capacity"]);

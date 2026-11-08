@@ -21,11 +21,23 @@ function file(name: string, b: Board): ScenarioFile {
  */
 export const TAIWAN_SCIENCE_PARK: Board = board([["n1", "fab", 5, 4]], []);
 
+/** A blank plot: the app and the guided demo open here. */
+export const BLANK_PARK: Board = board([], []);
+
 /**
- * The guided demo's opening board: a data center campus in a Taiwan science park, and nothing
- * else. Its cooling needs Tier 3 water, which is where Harmony (batch RO) beats regular desal.
+ * A Taiwan industrial park with its tenants built but no water yet. Every tenant needs
+ * Tier 3 or less, so one Harmony plant (batch RO, Tier 3) can supply the whole park.
  */
-export const TAIWAN_DATA_CENTER: Board = board([["n1", "datacenter", 5, 4]], []);
+export const TAIWAN_INDUSTRIAL_PARK: Board = board(
+  [
+    ["n1", "datacenter", 5, 4],
+    ["n2", "factory", 6, 1],
+    ["n3", "office", 2, 6],
+    ["n4", "fire", 6, 6],
+    ["n5", "concrete", 3, 1],
+  ],
+  [],
+);
 
 /** One fab on reservoir (municipal) water with its conventional RO + UPW train (tests, comparisons). */
 export const TAIWAN_CONVENTIONAL: Board = board(
@@ -111,7 +123,8 @@ const FAB_PLUS_DC: Board = board(
 );
 
 export const PRESETS: Array<{ id: string; name: string; file: ScenarioFile }> = [
-  { id: "taiwan-dc", name: "Taiwan data center", file: file("Taiwan data center", TAIWAN_DATA_CENTER) },
+  { id: "blank", name: "Blank park", file: file("Blank park", BLANK_PARK) },
+  { id: "taiwan-park", name: "Taiwan industrial park", file: file("Taiwan industrial park", TAIWAN_INDUSTRIAL_PARK) },
   { id: "taiwan", name: "Taiwan Science Park fab", file: file("Taiwan Science Park fab", TAIWAN_SCIENCE_PARK) },
   { id: "fab", name: "Semiconductor fab", file: file("Semiconductor fab", SEMICONDUCTOR_FAB) },
   { id: "datacenter", name: "Data center campus", file: file("Data center campus", DATA_CENTER_CAMPUS) },

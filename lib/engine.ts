@@ -38,5 +38,5 @@ export const engine: EngineApi = {
   suggestions,
 };
 
-export { DEMO_DC_ID, DEMO_STEPS, demoNext, demoStart, demoStateAt } from "./demo";
+export { DEMO_PARK_TENANTS, DEMO_STEPS, demoNext, demoStart, demoStateAt, demoTrigger } from "./demo";
 export type { DemoPanel, DemoState, DemoStep, DemoStepId } from "./demo";

@@ -351,6 +351,16 @@ export const DEFAULT_ASSUMPTIONS = {
   "consumptive.fire": ill(0, "fraction", "Fire suppression consumptive share", "Demand"),
   "consumptive.evap": ill(0.85, "fraction", "Evaporative cooling consumptive share", "Demand"),
   "consumptive.gate": ill(0.1, "fraction", "Gatehouse consumptive share", "Demand"),
+  "demand.factory": ill(3000, "m³/day", "Manufacturing plant water demand", "Demand", "A mid-size plant's process, washdown and cooling water. Placeholder: replace with the tenant's metered use."),
+  "demand.concrete": ill(
+    1200,
+    "m³/day",
+    "Concrete & aggregate plant water demand",
+    "Demand",
+    "Dust suppression on stockpiles and haul roads plus truck washdown. Placeholder sized so the whole demo park (≈12,970 m³/day) fits one 13,000 m³/day desal plant; replace with the tenant's metered use.",
+  ),
+  "consumptive.concrete": ill(0.9, "fraction", "Concrete & aggregate plant consumptive share", "Demand", "Dust suppression water mostly evaporates or soaks in; placeholder."),
+  "consumptive.factory": ill(0.3, "fraction", "Manufacturing plant consumptive share", "Demand", "Most process water returns as wastewater; placeholder."),
   "consumptive.datacenter": ill(
     0.75,
     "fraction",
@@ -377,6 +387,8 @@ export const DEFAULT_ASSUMPTIONS = {
     "Ponemon 2016: US$8,851/min (~US$531k/h) average; Uptime 2024: 54% of last major outages >US$100k, 20% >US$1M (https://statista.com/statistics/666816/united-states-data-centers-unplanned-outage-cost-per-minute)",
   ),
   "downtime.support": ill(5_000, "USD/hour", "Support building downtime cost", "Downtime"),
+  "downtime.concrete": ill(20_000, "USD/hour", "Concrete & aggregate plant downtime cost", "Downtime"),
+  "downtime.factory": ill(50_000, "USD/hour", "Manufacturing plant downtime cost", "Downtime"),
   "downtime.fabArea": ill(300000, "USD/hour", "Fab sub-area (wet, CMP, cleanroom) downtime cost", "Downtime"),
   "downtime.datacenterXL": ill(600000, "USD/hour", "Server hall XL downtime cost", "Downtime"),
 

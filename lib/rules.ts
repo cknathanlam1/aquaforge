@@ -33,6 +33,8 @@ export const TIER_REQUIREMENTS: Partial<Record<PieceType, TierRequirement>> = {
   closed: { minTier: 3, why: "closed-loop liquid cooling needs process-grade water to protect cold plates" },
   datacenter: { minTier: 3, why: "running cooling towers at high cycles of concentration needs low-mineral, process-grade makeup water" },
   office: { minTier: 2, why: "people need potable-grade (filtered) water" },
+  factory: { minTier: 2, why: "process and washdown water needs to be filtered" },
+  concrete: { minTier: 1, why: "dust suppression and truck washdown can use raw water, including other buildings' untreated used water" },
   gate: { minTier: 2, why: "people need potable-grade (filtered) water" },
   fire: { minTier: 2, why: "fire suppression tanks need filtered water so nozzles don't clog" },
 };
@@ -386,7 +388,9 @@ export const RULES: ReadonlyArray<EdgeRule | NodeRule> = [
       const def = PIECES[n.type];
       if (def.role !== "consumer" && def.role !== "server") return null;
       const kind: EdgeKind = def.role === "server" ? "cooling" : "supply";
+      const takesUsedWater = def.ports.in.includes("wastewater");
       const fed = (a.validIn[n.id] ?? []).some((e) => {
+        if (takesUsedWater && a.edges[e.id]?.kind === "wastewater") return true;
         if (a.edges[e.id]?.kind !== kind) return false;
         if (kind === "supply") return true;
         // Cooling only counts if the cooling piece itself has valid supply.
