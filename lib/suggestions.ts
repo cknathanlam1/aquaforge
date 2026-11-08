@@ -21,6 +21,12 @@ function usd(x: number): string {
   return `$${Math.round(x)}`;
 }
 
+/** "a", "a and b", "a, b and c" */
+function listText(items: string[]): string {
+  if (items.length <= 2) return items.join(" and ");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+}
+
 function n(x: number): string {
   return Math.round(x).toLocaleString("en-US");
 }
@@ -85,10 +91,12 @@ function harmonySwap(board: Board, desal: BoardNode, v: AssumptionValues, settin
   const membraneSaving = (v["varcost.desal"] - v["varcost.harmony"]) * produced * DAYS_PER_YEAR;
   const energyPct = Math.round((1 - v["harmony.energy"] / v["energy.desal"]) * 100);
   const brinePct = cur.normalDay.totals.brine > 0 ? Math.round((brineReduced / cur.normalDay.totals.brine) * 100) : 0;
-  const names = [...new Set(consumers.map((c) => PIECES[c.type].name))].join(" and ");
+  const names = listText([...new Set(consumers.map((c) => PIECES[c.type].name.toLowerCase()))]);
+  const needs = new Set(consumers.map((c) => requiredTier(c.type) ?? 1));
+  const needText = needs.size > 1 ? `Tier ${maxNeed} or less` : `Tier ${maxNeed}`;
 
   const reasons = [
-    `Right-sized quality: your ${names} ${consumers.length > 1 ? "need" : "needs"} Tier ${maxNeed}. Regular desal makes Tier 4, so you pay for treatment you don't use. Harmony stops at Tier ${harmonyTier}.`,
+    `Right-sized quality: your ${names} ${consumers.length > 1 ? "need" : "needs"} ${needText}. Regular desal makes Tier 4, so you pay for treatment you don't use. Harmony stops at Tier ${harmonyTier}.`,
     `Less energy: batch RO uses about ${energyPct}% less power, ${n(energySaved)} kWh/day.`,
     `Less brine: higher recovery cuts brine by ${brinePct}%, ${n(brineReduced)} m³/day less to dispose of (and less seawater to pump).`,
   ];
