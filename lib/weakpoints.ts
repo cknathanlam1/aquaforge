@@ -5,7 +5,7 @@
 
 import type { AssumptionValues } from "./assumptions";
 import { activeBoard } from "./board";
-import type { Board, ScenarioSettings, WeakPoint } from "./contract";
+import type { Board, PieceType, ScenarioSettings, WeakPoint } from "./contract";
 import { evaluate } from "./finance";
 import { PIECES } from "./pieces";
 import { evaluateRules } from "./rules";
@@ -35,12 +35,29 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
   const board = activeBoard(input);
   const points: WeakPoint[] = [];
 
-  // Pieces already broken come first.
-  for (const r of evaluateRules(board).filter((x) => x.severity === "error" && x.ruleId === "consumer-offline")) {
-    points.push({ id: `offline:${r.nodeId}`, severity: "high", title: r.message, detail: r.reasonText, nodeIds: r.nodeId ? [r.nodeId] : [], annualImpact: null });
-  }
-
   const drought = evaluate(board, v, { ...settings, scenarioId: "drought2021" });
+
+  // Buildings with no water at all come first: they're losing production right now.
+  const hasSource = board.nodes.some((n) => PIECES[n.type].role === "source");
+  for (const r of evaluateRules(board).filter((x) => x.ruleId === "consumer-offline" && x.nodeId)) {
+    const id = r.nodeId as string;
+    const def = PIECES[(board.nodes.find((n) => n.id === id) ?? { type: "fab" }).type as PieceType];
+    const lost = drought.normalDay.nodes[id]?.lostPerHour ?? 0;
+    const ultrapure = (def.consumer?.kind === "fab" || def.consumer?.kind === "fabArea");
+    points.push({
+      id: `offline:${id}`,
+      severity: "high",
+      title: hasSource ? `${def.name} is offline` : `${def.name} has no water source`,
+      detail: (hasSource ? r.reasonText : `Nothing supplies the ${def.name.toLowerCase()}, so it's offline.`) + (lost > 0 ? ` Every hour costs ${usd(lost)} of lost production.` : ""),
+      nodeIds: [id],
+      annualImpact: null,
+      lostPerHour: lost > 0 ? lost : undefined,
+      fix: ultrapure
+        ? "Add a water source and treat it to ultrapure: a seawater intake into a desalination plant (Tier 4), then ultrapure polishing (Tier 5). The sea can't be cut in a drought, so it also makes the supply chain more resilient. A second, independent source (municipal water through RO) means one outage can't stop production."
+        : "Add a water source and the treatment this building needs. Two independent sources mean one drought or outage can't stop it.",
+      fixPieces: ultrapure ? ["seawater", "desal", "polish", "brine"] : ["municipal"],
+    });
+  }
   const normal = drought.normalDay;
   const stress = drought.stressDay;
   const days = drought.run.params.droughtDays;
@@ -59,6 +76,8 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
       detail: `${Math.round(share * 100)}% of supply is reservoir or river water, which the government cuts first in a drought (${Math.round(drought.run.params.cut * 100)}% in 2021).`,
       nodeIds: exposed.map((s) => s.id),
       annualImpact: null,
+      fix: "Add a second source a drought can't cut: seawater through a desalination plant, or shared reclaimed water from a nearby plant. Recycling your own wastewater also shrinks what the cut applies to.",
+      fixPieces: ["seawater", "desal", "nearby", "recycle"],
     });
   }
 
@@ -73,12 +92,15 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
       detail: `Covering the cut with trucks costs ${usd(dailyStress.trucking)} a day for ${days} days: ${usd(truckingYear)} a year.`,
       nodeIds: exposed.map((s) => s.id),
       annualImpact: truckingYear,
+      fix: "Make the gap smaller or fill it yourself: a recycling loop cuts the reservoir draw the cut is applied to, and desalination fills the rest at a fraction of the cost of trucked water.",
+      fixPieces: ["recycle", "seawater", "desal"],
     });
   }
 
   // 3. Buildings that still run short when trucks hit their limit.
   for (const c of stress?.consumers ?? []) {
     if (c.unmet <= 0 || c.lostPerHour <= 0) continue;
+    if (normal.nodes[c.id]?.status === "offline") continue; // already flagged as having no water
     const yearly = days * c.lostPerHour * HOURS_PER_DAY;
     points.push({
       id: `short:${c.id}`,
@@ -87,6 +109,9 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
       detail: `Trucks can't cover the whole cut: ${m3(c.unmet)} short, losing ${usd(c.lostPerHour)} of production an hour.`,
       nodeIds: [c.id],
       annualImpact: yearly,
+      lostPerHour: c.lostPerHour,
+      fix: "Add supply that doesn't depend on the reservoir (desalination, a nearby plant, or groundwater) so trucks only cover what's left.",
+      fixPieces: ["seawater", "desal", "nearby", "well"],
     });
   }
 
@@ -100,6 +125,8 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
       detail: `No backup supply or storage covers it. One outage costs about ${usd(line.lostPerEvent)}; at a ${Math.round(line.probability * 100)}% yearly chance that's ${usd(line.expected)} a year expected.`,
       nodeIds: [line.sourceId],
       annualImpact: line.expected,
+      fix: "Put a storage tank in front of the fab to ride through the outage (each tank holds about a day of supply), or add a second, independent source.",
+      fixPieces: ["tank", "seawater", "desal"],
     });
   }
 
@@ -107,7 +134,8 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
   const hasReuse = board.nodes.some((n) => PIECES[n.type].role === "reuse");
   const discharged = normal.totals.discharge;
   if (!hasReuse && discharged >= WASTEWATER_FLAG_M3) {
-    const sinks = board.nodes.filter((n) => PIECES[n.type].sinkKind === "discharge").map((n) => n.id);
+    const dischargePieces = board.nodes.filter((n) => PIECES[n.type].sinkKind === "discharge").map((n) => n.id);
+    const sinks = dischargePieces.length ? dischargePieces : board.nodes.filter((n) => PIECES[n.type].role === "consumer").map((n) => n.id);
     const yearlyFees = discharged * v["price.discharge"] * DAYS_PER_YEAR;
     points.push({
       id: "no-reuse",
@@ -116,9 +144,12 @@ export function weakPoints(input: Board, v: AssumptionValues, settings: Scenario
       detail: `${m3(discharged)} is discharged instead of reused. You pay for it twice: once to buy it, once (${usd(yearlyFees)} a year) to discharge it.`,
       nodeIds: sinks,
       annualImpact: yearlyFees,
+      fix: "Pipe the building's wastewater to a recycling loop, and the loop's output back into RO and polishing. You buy less water and discharge less.",
+      fixPieces: ["recycle", "ro"],
     });
   }
 
-  const rank = (p: WeakPoint) => (p.severity === "high" ? 0 : 1);
+  // Offline buildings first (they're losing production now), then severity, then dollars.
+  const rank = (p: WeakPoint) => (p.id.startsWith("offline:") ? 0 : p.severity === "high" ? 1 : 2);
   return points.sort((a, b) => rank(a) - rank(b) || (b.annualImpact ?? 0) - (a.annualImpact ?? 0));
 }

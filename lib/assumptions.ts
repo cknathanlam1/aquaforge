@@ -205,7 +205,7 @@ export const DEFAULT_ASSUMPTIONS = {
   // ---------- Capacity (m³/day of product) ----------
   "cap.municipal": ill(200000, "m³/day", "Municipal allocation available to the site", "Capacity"),
   "cap.groundwater": ill(5000, "m³/day", "Groundwater well capacity", "Capacity"),
-  "cap.seawater": ill(40000, "m³/day", "Seawater intake capacity", "Capacity"),
+  "cap.seawater": ill(100000, "m³/day", "Seawater intake capacity", "Capacity", "Sized to feed two 13,000 m³/day desal units (desal feed = product ÷ recovery)."),
   "cap.reclaimed": ill(15000, "m³/day", "Neighbor reclaimed-water supply", "Capacity"),
   "cap.filter": ill(40000, "m³/day", "Basic filter capacity", "Capacity"),
   "cap.process": ill(30000, "m³/day", "Process treatment capacity", "Capacity"),

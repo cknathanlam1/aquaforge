@@ -5,7 +5,7 @@ import { advise, generateCandidates } from "../lib/advisor";
 import { defaultValues } from "../lib/assumptions";
 import type { Board, BoardEdge, BoardNode, PieceType } from "../lib/contract";
 import { compare, simplePayback } from "../lib/finance";
-import { PRESETS, TAIWAN_SCIENCE_PARK } from "../lib/presets";
+import { PRESETS, TAIWAN_CONVENTIONAL } from "../lib/presets";
 import { checkConnection } from "../lib/rules";
 import { NORMAL_CONDITIONS, simulateDay } from "../lib/simulation";
 import { makeBoard, settings } from "./helpers";
@@ -21,7 +21,7 @@ function extend(board: Board, nodes: Array<[string, PieceType, boolean]>, pipes:
 describe("code-review regressions", () => {
   it("H1: a new building with its normal plumbing is not a capex loss", () => {
     // A second fab with its own new conventional RO + UPW train.
-    const board = extend(TAIWAN_SCIENCE_PARK, [["ro2", "ro", false], ["upw2", "upw", false], ["fab2", "fab", false]], [
+    const board = extend(TAIWAN_CONVENTIONAL, [["ro2", "ro", false], ["upw2", "upw", false], ["fab2", "fab", false]], [
       ["n1", "ro2"],
       ["ro2", "upw2"],
       ["upw2", "fab2"],

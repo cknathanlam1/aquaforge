@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { defaultValues } from "../lib/assumptions";
-import { TAIWAN_SCIENCE_PARK } from "../lib/presets";
+import { TAIWAN_CONVENTIONAL } from "../lib/presets";
 import { permittedWithdrawal, runScenario, truckingPlan } from "../lib/scenarios";
 import { settings } from "./helpers";
 
@@ -34,7 +34,7 @@ describe("mandated cuts", () => {
     ["initial", 0.11],
     ["escalated", 0.15],
   ] as const)("2021 drought (%s) reduces municipal withdrawal by exactly %s", (cutLevel, cut) => {
-    const run = runScenario(TAIWAN_SCIENCE_PARK, v, settings({ scenarioId: "drought2021", cutLevel }));
+    const run = runScenario(TAIWAN_CONVENTIONAL, v, settings({ scenarioId: "drought2021", cutLevel }));
     const normal = run.normalDay.sources[0];
     const stress = run.stressDay?.sources[0];
 
@@ -47,8 +47,8 @@ describe("mandated cuts", () => {
   });
 
   it("11% is fully covered by trucks; 15% exceeds the default tanker limit and the fab runs short", () => {
-    const at11 = runScenario(TAIWAN_SCIENCE_PARK, v, settings({ scenarioId: "drought2021", cutLevel: "initial" }));
-    const at15 = runScenario(TAIWAN_SCIENCE_PARK, v, settings({ scenarioId: "drought2021", cutLevel: "escalated" }));
+    const at11 = runScenario(TAIWAN_CONVENTIONAL, v, settings({ scenarioId: "drought2021", cutLevel: "initial" }));
+    const at15 = runScenario(TAIWAN_CONVENTIONAL, v, settings({ scenarioId: "drought2021", cutLevel: "escalated" }));
 
     expect(at11.stressDay?.totals.unmet).toBeCloseTo(0, 6);
     expect(at15.stressDay?.totals.tankersPerDay).toBe(v["truck.maxPerDay"]);
@@ -57,13 +57,13 @@ describe("mandated cuts", () => {
 
   it("caps trucking at the site's tanker limit; the rest is unmet", () => {
     const tight = { ...v, "truck.maxPerDay": 50 };
-    const run = runScenario(TAIWAN_SCIENCE_PARK, tight, settings({ scenarioId: "drought2021" }));
+    const run = runScenario(TAIWAN_CONVENTIONAL, tight, settings({ scenarioId: "drought2021" }));
 
     expect(run.stressDay?.totals.trucked).toBeCloseTo(50 * 20, 6);
     expect(run.stressDay?.totals.unmet).toBeGreaterThan(0);
   });
 
   it("a normal year has no drought days", () => {
-    expect(runScenario(TAIWAN_SCIENCE_PARK, v, settings()).stressDay).toBeNull();
+    expect(runScenario(TAIWAN_CONVENTIONAL, v, settings()).stressDay).toBeNull();
   });
 });

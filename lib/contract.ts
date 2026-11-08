@@ -312,6 +312,12 @@ export interface WeakPoint {
   nodeIds: string[];
   /** Annual cost this weakness drives (USD/yr), or null when it has no clean dollar figure. */
   annualImpact: number | null;
+  /** Lost production per hour while it lasts (USD/h), for weaknesses that stop a building. */
+  lostPerHour?: number;
+  /** How to solve it, in plain English (shown when the weak point is clicked). */
+  fix: string;
+  /** Pieces that solve it, in palette order of use. */
+  fixPieces: PieceType[];
 }
 
 // ---------- Engine API (implemented in lib/engine.ts by workstream A) ----------

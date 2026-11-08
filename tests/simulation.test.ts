@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { defaultValues } from "../lib/assumptions";
 import { neighborBoard, resilienceBoard } from "./fixtures";
-import { PRESETS, TAIWAN_SCIENCE_PARK } from "../lib/presets";
+import { PRESETS, TAIWAN_CONVENTIONAL } from "../lib/presets";
 import { droughtConditions, scenarioParams } from "../lib/scenarios";
 import { NORMAL_CONDITIONS, simulateDay } from "../lib/simulation";
 import { makeBoard, settings } from "./helpers";
@@ -14,7 +14,7 @@ function expectMassBalance(withdrawn: number, error: number): void {
 
 describe("water balance", () => {
   it("one fab on RO + UPW withdraws demand ÷ (RO recovery × UPW recovery)", () => {
-    const day = simulateDay(TAIWAN_SCIENCE_PARK, v);
+    const day = simulateDay(TAIWAN_CONVENTIONAL, v);
     const expected = 20000 / (0.95 * 0.75);
 
     expect(day.totals.withdrawn).toBeCloseTo(expected, 6);
@@ -24,7 +24,9 @@ describe("water balance", () => {
   });
 
   it.each([
-    ...PRESETS.map((p) => [p.name, p.file.board] as const),
+    // Taiwan Science Park opens fab-only (no source), so it has nothing to balance.
+    ...PRESETS.filter((p) => p.id !== "taiwan").map((p) => [p.name, p.file.board] as const),
+    ["Taiwan fab, conventional supply", TAIWAN_CONVENTIONAL] as const,
     ["recycle + desal + tank", resilienceBoard()] as const,
     ["neighbor shares the loop", neighborBoard()] as const,
   ])("conserves mass: %s", (_name, board) => {
@@ -45,7 +47,7 @@ describe("water balance", () => {
   });
 
   it("recycling replaces municipal water and shows up as recycled share", () => {
-    const before = simulateDay(TAIWAN_SCIENCE_PARK, v);
+    const before = simulateDay(TAIWAN_CONVENTIONAL, v);
     const after = simulateDay(resilienceBoard(), v);
 
     // Limited by plant capacity or by the fab's wastewater (demand × (1 − consumptive) × recovery).

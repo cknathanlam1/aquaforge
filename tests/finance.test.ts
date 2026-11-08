@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { defaultValues } from "../lib/assumptions";
 import { neighborBoard, resilienceBoard } from "./fixtures";
 import { compare, dailySurcharge, npv, simplePayback } from "../lib/finance";
-import { TAIWAN_SCIENCE_PARK } from "../lib/presets";
+import { TAIWAN_CONVENTIONAL } from "../lib/presets";
 import { m3ToTonnes, tonnesToM3, twdToUsd, usdToTwd } from "../lib/units";
 import { settings } from "./helpers";
 
@@ -40,13 +40,13 @@ describe("surcharge", () => {
 
 describe("design vs do-nothing baseline", () => {
   it("the Taiwan preset is its own baseline: zero savings, zero capex", () => {
-    const c = compare(TAIWAN_SCIENCE_PARK, v, settings());
+    const c = compare(TAIWAN_CONVENTIONAL, v, settings());
     expect(c.metrics.netAnnualSavings.value).toBeCloseTo(0, 2);
     expect(c.metrics.capex.value).toBe(0);
   });
 
   it("a 2021-type drought costs the do-nothing baseline more than a normal year", () => {
-    const c = compare(TAIWAN_SCIENCE_PARK, v, settings({ scenarioId: "drought2021" }));
+    const c = compare(TAIWAN_CONVENTIONAL, v, settings({ scenarioId: "drought2021" }));
     expect(c.metrics.costOfDoingNothing.value).toBeGreaterThan(0);
     expect(c.metrics.tankersPerDay.value).toBeGreaterThan(0);
   });

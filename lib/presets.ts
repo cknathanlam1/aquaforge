@@ -15,8 +15,14 @@ function file(name: string, b: Board): ScenarioFile {
   return { version: 1, name, board: b, settings: { ...DEFAULT_SETTINGS }, assumptionOverrides: {} };
 }
 
-/** Taiwan Science Park: one fab on reservoir (municipal) water, conventional UPW train. */
-export const TAIWAN_SCIENCE_PARK: Board = board(
+/**
+ * Taiwan Science Park, as the demo opens: one semiconductor fab and nothing else. No water
+ * source and no pipes, so the first thing the engine flags is that the fab has no water.
+ */
+export const TAIWAN_SCIENCE_PARK: Board = board([["n1", "fab", 5, 4]], []);
+
+/** One fab on reservoir (municipal) water with its conventional RO + UPW train (tests, comparisons). */
+export const TAIWAN_CONVENTIONAL: Board = board(
   [
     ["n1", "municipal", 1, 1],
     ["n2", "ro", 3, 1],

@@ -36,5 +36,5 @@ export const engine: EngineApi = {
   weakPoints,
 };
 
-export { DEMO_STEPS, demoStart, demoStateAt } from "./demo";
-export type { DemoPanel, DemoState, DemoStep } from "./demo";
+export { DEMO_FAB_ID, DEMO_STEPS, demoNext, demoStart, demoStateAt } from "./demo";
+export type { DemoPanel, DemoState, DemoStep, DemoStepId } from "./demo";

@@ -14,10 +14,13 @@ describe("engine facade", () => {
     expect(catalog.find((p) => p.type === "desal")).toMatchObject({ outputTier: 4, capexKey: "capex.desal" });
   });
 
-  it("ships the four presets with Taiwan Science Park first, all rule-clean", () => {
+  it("ships the four presets with Taiwan Science Park first; only Taiwan starts broken (a fab with no water)", () => {
     const presets = engine.presets();
     expect(presets.map((p) => p.name)).toEqual(["Taiwan Science Park", "Semiconductor fab", "Data center campus", "Fab + data center"]);
-    for (const p of presets) expect(engine.evaluateRules(p.file.board).filter((r) => r.severity !== "info")).toEqual([]);
+    const taiwan = engine.evaluateRules(presets[0].file.board).filter((r) => r.severity !== "info");
+    expect(taiwan.map((r) => r.ruleId)).toEqual(["consumer-offline"]);
+    expect(presets[0].file.board.edges).toEqual([]);
+    for (const p of presets.slice(1)) expect(engine.evaluateRules(p.file.board).filter((r) => r.severity !== "info")).toEqual([]);
   });
 
   it("compare() works through the facade", () => {

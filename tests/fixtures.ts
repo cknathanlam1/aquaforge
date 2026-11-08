@@ -7,7 +7,7 @@
 
 import { addEdge, addNode, nodeById, removeEdge } from "../lib/board";
 import type { Board } from "../lib/contract";
-import { TAIWAN_SCIENCE_PARK } from "../lib/presets";
+import { TAIWAN_CONVENTIONAL } from "../lib/presets";
 import { applyRecommendation, checkConnection } from "../lib/rules";
 
 function findType(board: Board, type: string): string {
@@ -21,7 +21,7 @@ function connect(board: Board, pairs: Array<[string, string]>): Board {
 }
 
 export function resilienceBoard(): Board {
-  const sea = addNode(TAIWAN_SCIENCE_PARK, "seawater", { x: 0, y: 7 });
+  const sea = addNode(TAIWAN_CONVENTIONAL, "seawater", { x: 0, y: 7 });
   const filter = addNode(sea.board, "filter", { x: 2, y: 7 });
   let board = addEdge(filter.board, sea.id, filter.id).board;
   board = applyRecommendation(board, checkConnection(board, filter.id, "n4"));
