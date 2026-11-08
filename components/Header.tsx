@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useRef } from "react";
 import { SCENARIO_LABELS, type ScenarioId } from "@/lib/contract";
 import { useNature } from "@/lib/store";
@@ -47,15 +48,15 @@ export function Header() {
   };
 
   return (
-    <header className="flex h-[54px] flex-none items-center gap-2.5 border-b border-[var(--color-neutral-300)] bg-white px-3">
-      <div className="flex items-baseline gap-2">
-        <span className="heading text-[26px] uppercase tracking-[0.02em]">AquaForge</span>
+    <header className="flex h-[54px] flex-none items-center gap-2 border-b border-[var(--color-neutral-300)] bg-white px-3">
+      <div className="flex flex-none items-center">
+        <Image src="/aquaforge-logo.png" alt="AquaForge" width={125} height={42} priority />
       </div>
       <label className="flex items-center gap-1.5 text-[13px] text-[var(--color-neutral-700)]">
         <span className="sr-only">Project</span>
         <select
           aria-label="Demo scenario"
-          className="ninput max-w-[176px] py-[5px] font-semibold"
+          className="ninput max-w-[156px] py-[5px] font-semibold"
           value={presetId}
           onChange={(e) => loadPreset(e.target.value)}
         >
