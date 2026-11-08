@@ -1,12 +1,12 @@
-# Nature: water strategy, priced in dollars
+# AquaForge: water strategy, priced in dollars
 
 > Companies won't act on sustainability unless it saves money. This tool shows exactly how many dollars a water strategy saves, and what a supply disruption would cost if they do nothing.
 
-Nature is a water-management simulator for industrial campuses (semiconductor fabs, data centers). Drag water sources, treatment, recycling and efficiency pieces onto an isometric campus, and the engine prices the design against an auto-derived "do nothing" baseline: annual savings, risk-adjusted savings, payback, NPV, and the cost of a drought if you don't act. Units are metric (m³/day) with a USD / NT$ toggle.
+AquaForge is a water-management simulator for industrial campuses (semiconductor fabs, data centers). Drag water sources, treatment, recycling and efficiency pieces onto an isometric campus, and the engine prices the design against an auto-derived "do nothing" baseline: annual savings, risk-adjusted savings, payback, NPV, and the cost of a drought if you don't act. Units are metric (m³/day) with a USD / NT$ toggle.
 
 The default demo is the **Taiwan Science Park** case study: the 2021 drought, 11-15% mandated water cuts, and trucked-in water.
 
-![Nature: isometric campus board with the Impact Dashboard](docs/screenshot.png)
+![AquaForge: isometric campus board with the Impact Dashboard](docs/screenshot.png)
 
 ## Quick start
 

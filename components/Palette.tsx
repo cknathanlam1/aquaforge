@@ -14,7 +14,7 @@ function tierTag(p: PieceInfo): { text: string; color: string } {
   return { text: "—", color: NO_TIER };
 }
 
-export const DRAG_MIME = "application/x-nature-piece";
+export const DRAG_MIME = "application/x-aquaforge-piece";
 
 export function Palette() {
   const catalog = useCatalog();

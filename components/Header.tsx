@@ -49,7 +49,7 @@ export function Header() {
   return (
     <header className="flex h-[54px] flex-none items-center gap-2.5 border-b border-[var(--color-neutral-300)] bg-white px-3">
       <div className="flex items-baseline gap-2">
-        <span className="heading text-[26px] uppercase tracking-[0.02em]">Nature</span>
+        <span className="heading text-[26px] uppercase tracking-[0.02em]">AquaForge</span>
       </div>
       <label className="flex items-center gap-1.5 text-[13px] text-[var(--color-neutral-700)]">
         <span className="sr-only">Project</span>

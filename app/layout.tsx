@@ -6,7 +6,7 @@ const barlow = Barlow({ variable: "--font-barlow", subsets: ["latin"], weight: [
 const barlowCondensed = Barlow_Condensed({ variable: "--font-barlow-condensed", subsets: ["latin"], weight: ["600", "700"] });
 
 export const metadata: Metadata = {
-  title: "Nature · Campus water simulator",
+  title: "AquaForge · Campus water simulator",
   description: "Design an industrial campus water system and see the dollars saved, drought by drought.",
 };
 
