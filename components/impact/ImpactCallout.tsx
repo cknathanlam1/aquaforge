@@ -3,7 +3,7 @@ import type { Comparison, Metric } from "@/lib/contract";
 import { useNature } from "@/lib/store";
 import { useCatalog, useComparison, useFmt } from "../hooks";
 import { InfoButton } from "../ui/InfoButton";
-import { brineMetric, offlineMetric } from "./offline";
+import { brineMetric, dischargeMetric, offlineMetric, reusedMetric } from "./offline";
 
 interface Row { label: string; before: string; after: string; better: boolean | null; metrics: Metric[] }
 
@@ -25,22 +25,28 @@ export function ImpactCallout() {
   const m = (c: Comparison) => c.metrics;
   const v = (x: Metric) => fmt.value(x.value, x.unit);
   const cmp = (a: number | null, b: number | null, higherIsBetter: boolean) => (a === null || b === null || a === b ? null : higherIsBetter ? b > a : b < a);
+  // Water and operations rows only appear when they changed, keeping the callout compact.
+  const opt = (label: string, b: Metric, a: Metric, higherIsBetter: boolean): Row[] =>
+    v(b) === v(a) ? [] : [{ label, before: v(b), after: v(a), better: cmp(b.value, a.value, higherIsBetter), metrics: [a] }];
   const rows: Row[] = [
-    {
+    ...((offB.value ?? 0) > 0 || (offA.value ?? 0) > 0 ? [{
       label: "Production",
       before: (offB.value ?? 0) > 0 ? `offline, ${fmt.money(offB.value ?? 0)}/hour lost` : "online",
       after: (offA.value ?? 0) > 0 ? `offline, ${fmt.money(offA.value ?? 0)}/hour lost` : (offB.value ?? 0) > 0 ? "back online" : "online",
       better: cmp(offB.value, offA.value, false),
       metrics: [offB, offA],
-    },
+    }] : []),
     { label: "Net annual savings", before: v(m(before).netAnnualSavings), after: v(m(after).netAnnualSavings), better: cmp(m(before).netAnnualSavings.value, m(after).netAnnualSavings.value, true), metrics: [m(after).netAnnualSavings] },
     { label: "Risk-adjusted savings", before: v(m(before).riskAdjustedSavings), after: v(m(after).riskAdjustedSavings), better: cmp(m(before).riskAdjustedSavings.value, m(after).riskAdjustedSavings.value, true), metrics: [m(after).riskAdjustedSavings] },
     { label: "Capex", before: v(m(before).capex), after: v(m(after).capex), better: null, metrics: [m(after).capex] },
     { label: "Payback", before: v(m(before).payback), after: v(m(after).payback), better: null, metrics: [m(after).payback] },
     { label: "NPV", before: v(m(before).npv), after: v(m(after).npv), better: cmp(m(before).npv.value, m(after).npv.value, true), metrics: [m(after).npv] },
-    { label: "Treatment energy", before: v(m(before).treatmentEnergy), after: v(m(after).treatmentEnergy), better: cmp(m(before).treatmentEnergy.value, m(after).treatmentEnergy.value, false), metrics: [m(after).treatmentEnergy] },
-    { label: "Brine", before: v(brineMetric(before)), after: v(brineMetric(after)), better: cmp(brineMetric(before).value, brineMetric(after).value, false), metrics: [brineMetric(after)] },
-    { label: "Tankers per drought day", before: v(m(before).tankersPerDay), after: v(m(after).tankersPerDay), better: cmp(m(before).tankersPerDay.value, m(after).tankersPerDay.value, false), metrics: [m(after).tankersPerDay] },
+    ...opt("Water withdrawn", m(before).waterWithdrawn, m(after).waterWithdrawn, false),
+    ...opt("Reused water", reusedMetric(before), reusedMetric(after), true),
+    ...opt("Discharge", dischargeMetric(before), dischargeMetric(after), false),
+    ...opt("Treatment energy", m(before).treatmentEnergy, m(after).treatmentEnergy, false),
+    ...opt("Brine", brineMetric(before), brineMetric(after), false),
+    ...opt("Tankers per drought day", m(before).tankersPerDay, m(after).tankersPerDay, false),
   ];
 
   return (

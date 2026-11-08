@@ -49,7 +49,7 @@ export function GuidedNarration() {
         {last ? (
           <button type="button" className="nbtn nbtn-sm nbtn-orange" onClick={exitGuided}>Finish</button>
         ) : (
-          <button type="button" className="nbtn nbtn-sm nbtn-orange" onClick={nextStep}>Next: {DEMO_STEPS[step + 1].short.split(" · ")[1]}</button>
+          <button type="button" className="nbtn nbtn-sm nbtn-orange" onClick={() => nextStep()}>Next: {DEMO_STEPS[step + 1].short.split(" · ")[1]}</button>
         )}
         <button type="button" className="nbtn nbtn-link nbtn-sm ml-auto" onClick={exitGuided}>Exit demo</button>
       </div>

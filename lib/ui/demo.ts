@@ -16,11 +16,13 @@ export interface DemoStep {
 }
 
 const UI: Record<string, { short: string; highlight: MetricKey | null }> = {
-  a: { short: "1 · No water", highlight: null },
-  b: { short: "2 · Regular desal", highlight: "netAnnualSavings" },
-  c: { short: "3 · Harmony", highlight: "netAnnualSavings" },
-  d: { short: "4 · Assumptions", highlight: null },
-  e: { short: "5 · AI advisor", highlight: "riskAdjustedSavings" },
+  a: { short: "1 · Blank", highlight: null },
+  b: { short: "2 · Build park", highlight: null },
+  c: { short: "3 · Regular desal", highlight: "netAnnualSavings" },
+  d: { short: "4 · Harmony", highlight: "netAnnualSavings" },
+  e: { short: "5 · Reuse", highlight: "netAnnualSavings" },
+  f: { short: "6 · Assumptions", highlight: null },
+  g: { short: "7 · AI advisor", highlight: "riskAdjustedSavings" },
 };
 
 export const DEMO_STEPS: DemoStep[] = ENGINE_STEPS.map((s) => ({

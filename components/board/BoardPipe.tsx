@@ -16,6 +16,8 @@ export interface PipeVisual {
   rubber?: boolean;
   /** A laid-but-invalid pipe (tier violation): pulses red with an X; click opens the popup. */
   alert?: { mx: number; my: number; edgeId: string };
+  /** Flow tag at the bend (used-water pipes). */
+  label?: { x: number; y: number; text: string };
 }
 
 /** One pipe: ink casing, tier-colored core, animated white droplet dash; red shaking X when rejected. */
@@ -74,6 +76,13 @@ export const BoardPipe = memo(function BoardPipe({ p, playing, onAlertClick }: P
         />
       )}
       {p.flash && <path d={p.d} stroke={C.green} strokeWidth={18} {...common} style={{ animation: "pulse .5s ease 3" }} />}
+      {p.label && (
+        <foreignObject x={p.label.x - 85} y={p.label.y - 30} width={170} height={22} style={{ overflow: "visible" }}>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <span style={{ height: 20, padding: "0 7px", background: "#f4ede2", border: `2px solid ${C.wastewater}`, borderRadius: 10, font: "700 11.5px/16px var(--font-body)", whiteSpace: "nowrap", color: "#5b4a33" }}>{p.label.text}</span>
+          </div>
+        </foreignObject>
+      )}
     </g>
   );
 });

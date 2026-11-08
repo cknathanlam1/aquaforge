@@ -6,7 +6,7 @@ import {
   DEFAULT_SETTINGS, type AdviseRequest, type AdviseResponse, type AdvisorResult, type Board, type Comparison, type Metric,
   type PieceType, type RuleResult, type ScenarioFile, type ScenarioId, type ScenarioSettings, type Suggestion,
 } from "@/lib/contract";
-import { DEMO_DC_ID, demoNext, demoStateAt, type DemoState } from "@/lib/engine";
+import { demoNext, demoStateAt, demoTrigger, type DemoState } from "@/lib/engine";
 import { DEMO_STEPS, type MetricKey } from "@/lib/ui/demo";
 import { engine } from "@/lib/ui/engine";
 import type { Currency } from "@/lib/ui/format";
@@ -139,7 +139,8 @@ export interface NatureActions {
   /** Jump to a step, replaying the demo from scratch (step chips, Back). */
   goToStep: (n: number) => void;
   /** Advance one step from the LIVE board (Next, accepting the step-2 recommendation). */
-  nextStep: () => void;
+  /** `before` (optional): the board to compare against for the impact callout (auto-advance passes the pre-change board). */
+  nextStep: (before?: Board) => void;
   startGuided: () => void;
   exitGuided: () => void;
   notify: (text: string, kind?: Toast["kind"]) => void;
@@ -188,8 +189,8 @@ export const useNature = create<NatureStore>()((set, get) => {
   const applyDemo = (d: DemoState, step: number, before: Comparison | null) => {
     set({
       ...transient,
-      presetId: firstPreset.id,
-      scenarioName: firstPreset.name,
+      presetId: "custom",
+      scenarioName: "Guided demo",
       baseFile: firstPreset.file,
       board: d.board,
       boardSize: boardSizeFor(d.board),
@@ -199,6 +200,7 @@ export const useNature = create<NatureStore>()((set, get) => {
       tool: "select",
       rightTab: "impact",
       demoStep: step,
+      guided: true,
       demoFocus: d.focus,
       demoPanel: d.panel,
       showWeakPoints: d.showWeakPoints,
@@ -328,9 +330,6 @@ export const useNature = create<NatureStore>()((set, get) => {
         const res = addEdge(s.board, from, to);
         set({ board: res.board, pending: null, selected: null, advisor: null });
         flash([res.id]);
-        // Guided step 1: the presenter piped a desal plant into the data center by hand.
-        const fromType = s.board.nodes.find((n) => n.id === from)?.type;
-        if (s.guided && s.demoStep === 0 && to === DEMO_DC_ID && (fromType === "desal" || fromType === "harmony")) get().nextStep();
         return;
       }
       if (result.ruleId === SOFT_RULE) {
@@ -361,8 +360,8 @@ export const useNature = create<NatureStore>()((set, get) => {
     acceptSuggestion: () => {
       const s = get();
       if (!s.suggestion) return;
-      // Guided step 2: switching is the step-3 transition (impact callout).
-      if (s.guided && s.demoStep === 1) { set({ suggestion: null }); return get().nextStep(); }
+      // Guided "Regular desal" step: switching is the transition into the Harmony step (impact callout).
+      if (s.guided && s.demoStep === 2) { set({ suggestion: null }); return get().nextStep(); }
       const before = new Set(s.board.nodes.map((n) => `${n.id}:${n.type}`));
       setBoard(s.suggestion.board, { suggestion: null, advisor: null });
       const changed = s.suggestion.board.nodes.filter((n) => !before.has(`${n.id}:${n.type}`)).length;
@@ -374,7 +373,6 @@ export const useNature = create<NatureStore>()((set, get) => {
     acceptRecommendation: () => {
       const s = get();
       if (!s.popup) return;
-      if (s.guided && s.demoStep === 1) return get().nextStep();
       const before = new Set(s.board.edges.map((e) => e.id));
       const board = engine.applyRecommendation(s.board, s.popup);
       setBoard(board, { popup: null, popupWhy: false, badPipe: null, mode: "build", advisor: null });
@@ -399,9 +397,12 @@ export const useNature = create<NatureStore>()((set, get) => {
     /** Back to the loaded preset/file with default scenario settings; keeps assumption overrides. */
     resetBoard: () => {
       const s = get();
+      const preset = engine.presets().find((p) => p.file === s.baseFile);
       set({
         ...transient,
         ...noDemo,
+        presetId: preset?.id ?? s.presetId,
+        scenarioName: preset?.name ?? s.baseFile.name,
         board: s.baseFile.board,
         boardSize: boardSizeFor(s.baseFile.board),
         settings: { ...DEFAULT_SETTINGS },
@@ -471,7 +472,7 @@ export const useNature = create<NatureStore>()((set, get) => {
       const before = step > 0 ? demoStateAt(step - 1) : null;
       applyDemo(demoStateAt(step), step, before ? engine.compare(before.board, values(), before.settings) : null);
     },
-    nextStep: () => {
+    nextStep: (beforeBoard) => {
       const s = get();
       const current = s.demoStep ?? -1;
       if (current >= DEMO_STEPS.length - 1) return;
@@ -479,7 +480,7 @@ export const useNature = create<NatureStore>()((set, get) => {
         board: s.board, settings: s.settings, popup: null, focus: s.demoFocus, panel: s.demoPanel, mode: s.mode,
         showWeakPoints: s.showWeakPoints, impactCallout: s.impactCallout, runAdvisor: false,
       };
-      applyDemo(demoNext(live, current + 1), current + 1, engine.compare(s.board, values(), s.settings));
+      applyDemo(demoNext(live, current + 1), current + 1, engine.compare(beforeBoard ?? s.board, values(), s.settings));
     },
     startGuided: () => {
       set({ guided: true });
@@ -492,6 +493,23 @@ export const useNature = create<NatureStore>()((set, get) => {
       later("toast", TOAST_MS, () => set({ toast: null }));
     },
   };
+});
+
+/**
+ * Guided demo auto-advance: after any board change the presenter makes by hand, ask the engine
+ * whether the current step's goal is met (demoTrigger) and, if so, advance from the live board.
+ * Demo transitions themselves are excluded so one step can't cascade into the next.
+ */
+let advancing = false;
+useNature.subscribe((s, prev) => {
+  if (advancing || s.board === prev.board || !s.guided || s.demoStep === null || s.demoStep !== prev.demoStep) return;
+  if (!demoTrigger(s.demoStep, s.board)) return;
+  advancing = true;
+  try {
+    s.nextStep(prev.board);
+  } finally {
+    advancing = false;
+  }
 });
 
 export { DEFAULT_SETTINGS };

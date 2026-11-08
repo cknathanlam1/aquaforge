@@ -1,6 +1,7 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { BoardNode, EdgeResult, PieceType } from "@/lib/contract";
+import { fmtCompact } from "@/lib/ui/format";
 import { SOFT_RULE, useNature } from "@/lib/store";
 import { boardGeom, cellCenter, pipePath, proj, pts, tileAt, type BoardGeom, type Pt } from "@/lib/ui/iso";
 import { BOARD_COLORS as C, TIER_COLORS } from "@/lib/ui/pieceArt";
@@ -24,7 +25,7 @@ function pipeStyle(r: EdgeResult | undefined): Pick<PipeVisual, "color" | "dash"
   if (!r.valid) return { color: C.red, dash: "10 8" };
   if (r.kind === "cooling") return { color: C.cooling, dash: "2 10" };
   if (r.kind === "brine") return { color: C.brine };
-  if (r.kind === "wastewater") return { color: C.wastewater, dash: "14 6" };
+  if (r.kind === "wastewater") return { color: C.wastewater, dash: "12 7" };
   if (r.kind === "efficiency") return { color: C.efficiency };
   return { color: r.tier ? TIER_COLORS[r.tier] : "#7cc6ea" };
 }
@@ -158,7 +159,12 @@ export function Board() {
         list.push({ key: e.id, d: path.d, color: C.red, flow: false, speed: 1, width: 8, flash: false, alert: { mx: path.mid[0], my: path.mid[1], edgeId: e.id } });
         continue;
       }
-      list.push({ key: e.id, d: path.d, ...pipeStyle(r), flow: r?.valid !== false && flow > 0, speed: flowSeconds(flow), width: 8, flash: flashIds.includes(e.id) });
+      // Used-water pipes carry an untreated stream to a reuse destination: label the flow so it reads as reuse.
+      const usedWater = r?.kind === "wastewater" && r.valid && flow > 0;
+      list.push({
+        key: e.id, d: path.d, ...pipeStyle(r), flow: r?.valid !== false && flow > 0, speed: flowSeconds(flow), width: 8, flash: flashIds.includes(e.id),
+        ...(usedWater ? { label: { x: path.mid[0], y: path.mid[1], text: `♻ ${fmtCompact(flow)} m³/d used water` } } : {}),
+      });
     }
     if (badPipe) {
       const a = byId.get(badPipe.from), b = byId.get(badPipe.to);

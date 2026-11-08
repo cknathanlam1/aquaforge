@@ -1,5 +1,25 @@
 import type { Board, Comparison, Metric, PieceInfo, PieceType } from "@/lib/contract";
 
+/** A normal-day water total from the engine's simulation, wrapped as a Metric for the info icon. */
+export function totalMetric(c: Comparison, key: "recycledSupply" | "discharge", label: string, formula: string): Metric {
+  const t = c.design.normalDay.totals;
+  return {
+    key,
+    label,
+    value: t[key],
+    unit: "m3/day",
+    formula,
+    inputs: [
+      { symbol: "you", label: `${label} (your design)`, value: t[key], unit: "m3/day" },
+      { symbol: "base", label: `${label} (do nothing)`, value: c.baseline.normalDay.totals[key], unit: "m3/day" },
+      { symbol: "D", label: "Total demand", value: t.demand, unit: "m3/day" },
+    ],
+  };
+}
+
+export const reusedMetric = (c: Comparison) => totalMetric(c, "recycledSupply", "Reused water", "Reused = water recycled or reused on site instead of withdrawn (normal day)");
+export const dischargeMetric = (c: Comparison) => totalMetric(c, "discharge", "Discharge", "Discharge = used water leaving the site to sewer or outfall (normal day)");
+
 /** Brine produced on a normal day, straight from the engine's simulation totals. */
 export function brineMetric(c: Comparison): Metric {
   const t = c.design.normalDay.totals;

@@ -86,6 +86,10 @@ export const PIECE_ART: Record<PieceType, PieceArt> = {
   pump: { code: "PUMP", sym: "⊚", color: "#bcb4a6", spec: [[0.6, 14, 0], [0.35, 10, 14, 0, 0, "#e0a030"]] },
   discharge: { code: "OUTFALL", sym: "↧", color: "#a39a8c", spec: [[0.6, 8, 0], [0.3, 10, 8, 0, 0, "#6d6457"]] },
 
+  // Manufacturing plant: long sawtooth-roof hall with a stack.
+  factory: { code: "MFG", sym: "⚙", color: "#c9a98a", spec: [[1, 26, 0], [0.45, 10, 26, -14, 0, "#b39478"], [0.45, 10, 26, 14, 0, "#b39478"], [0.15, 34, 0, 34, -16, "#8a7a6a"]] },
+  // Concrete & aggregate plant: twin hoppers on legs beside a gravel stockpile.
+  concrete: { code: "CONCRETE", sym: "▲", color: "#b9b4aa", spec: [[0.55, 10, 0, -18, 8, "#a39d92"], [0.3, 30, 10, 12, -8, "#cfcac0"], [0.3, 30, 10, 26, 2, "#cfcac0"], [0.4, 8, 0, -30, -10, "#9a8f7c"]] },
   neighbor_fab: { code: "NBR FAB", sym: "▦", color: "#cfa77c", spec: [[1, 44, 0], [0.4, 22, 44, 0, 0, "#b89a7a"]] },
   neighbor_dc: { code: "NBR DC", sym: "▥", color: "#90a7bd", spec: [[0.9, 44, 0]] },
 };
@@ -108,6 +112,7 @@ export const BOARD_COLORS = {
   select: "#3b8fc4",
   cooling: "#bfe3f2",
   brine: "#a58562",
-  wastewater: "#8d8a7f",
+  /** Used (untreated) water piped to a reuse destination: greyish brown. */
+  wastewater: "#9a8466",
   efficiency: "#a9d8cf",
 } as const;
