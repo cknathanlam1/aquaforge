@@ -1,7 +1,7 @@
 "use client";
 import { useMemo } from "react";
 import { withOverrides, type AssumptionValues } from "@/lib/assumptions";
-import type { Board, Comparison, Metric, PieceInfo, PieceType, ScenarioSettings, WeakPoint } from "@/lib/contract";
+import type { Board, Comparison, Metric, PieceInfo, PieceType, ScenarioSettings, Suggestion, WeakPoint } from "@/lib/contract";
 import { useNature } from "@/lib/store";
 import { engine } from "@/lib/ui/engine";
 import { fmtHeadline, fmtMoney, fmtValue, type FormatCtx } from "@/lib/ui/format";
@@ -51,6 +51,20 @@ export function useWeakPoints(): WeakPoint[] {
       return [];
     }
   }, [show, board, values, settings]);
+}
+
+/** engine.suggestions(): better options for designs that already work. Never throws into render. */
+export function useSuggestions(): Suggestion[] {
+  const board = useNature((s) => s.board);
+  const settings = useNature((s) => s.settings);
+  const values = useValues();
+  return useMemo(() => {
+    try {
+      return engine.suggestions(board, values, settings);
+    } catch {
+      return [];
+    }
+  }, [board, values, settings]);
 }
 
 const CATALOG: Record<PieceType, PieceInfo> = Object.fromEntries(engine.pieceCatalog().map((p) => [p.type, p])) as Record<PieceType, PieceInfo>;

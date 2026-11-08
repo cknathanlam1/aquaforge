@@ -1,15 +1,16 @@
 "use client";
-/** UI state for Nature. Engine calls go through lib/ui/engine.ts; all updates are immutable. */
+/** UI state for AquaForge. Engine calls go through lib/ui/engine.ts; all updates are immutable. */
 import { create } from "zustand";
 import { withOverrides, type AssumptionKey } from "@/lib/assumptions";
 import {
-  DEFAULT_SETTINGS, type AdviseRequest, type AdviseResponse, type AdvisorResult, type Board, type Metric,
-  type PieceType, type RuleResult, type ScenarioFile, type ScenarioId, type ScenarioSettings,
+  DEFAULT_SETTINGS, type AdviseRequest, type AdviseResponse, type AdvisorResult, type Board, type Comparison, type Metric,
+  type PieceType, type RuleResult, type ScenarioFile, type ScenarioId, type ScenarioSettings, type Suggestion,
 } from "@/lib/contract";
-import { buildDemoState, DEMO_STEPS, type MetricKey } from "@/lib/ui/demo";
+import { DEMO_DC_ID, demoNext, demoStateAt, type DemoState } from "@/lib/engine";
+import { DEMO_STEPS, type MetricKey } from "@/lib/ui/demo";
 import { engine } from "@/lib/ui/engine";
 import type { Currency } from "@/lib/ui/format";
-import { addEdge, addNode, boardSizeFor, hasEdge, MAX_BOARD_SIZE, mergeNewPieces } from "@/lib/ui/placement";
+import { addEdge, addNode, autoPipe, boardSizeFor, findFreeCellNear, hasEdge, MAX_BOARD_SIZE, mergeNewPieces } from "@/lib/ui/placement";
 
 export type Tool = "select" | "pipe" | "delete";
 export type Mode = "build" | "advisor";
@@ -42,11 +43,10 @@ export interface NatureState {
   pending: string | null;
   popup: RuleResult | null;
   popupWhy: boolean;
+  /** Open "better option" popup (engine.suggestions), the friendly sibling of `popup`. */
+  suggestion: Suggestion | null;
   badPipe: { from: string; to: string } | null;
   shakeId: string | null;
-  /** Guided step 2: a piece glowing red with "!" whose click opens `pendingPopup`. */
-  alertId: string | null;
-  pendingPopup: RuleResult | null;
   flash: string[];
 
   rightTab: RightTab;
@@ -71,6 +71,12 @@ export interface NatureState {
   demoFocus: string[];
   /** Guided step 1: show engine.weakPoints() on the board and in the narration card. */
   showWeakPoints: boolean;
+  /** Demo steps 3-4: show the before → after callout on the Impact panel. */
+  impactCallout: boolean;
+  /** The comparison from before the current demo step (the callout's "before"). */
+  calloutBefore: Comparison | null;
+  /** Which panel the current demo step asked for. */
+  demoPanel: DemoState["panel"];
   guided: boolean;
   /** The preset or imported file the board was last loaded from (what Reset returns to). */
   baseFile: ScenarioFile;
@@ -93,14 +99,20 @@ export interface NatureActions {
   setTool: (t: Tool) => void;
   select: (id: string | null) => void;
   addPiece: (type: PieceType, cell?: readonly [number, number]) => void;
+  /** Add a piece in the nearest free cell to a node and lay any standard pipes it implies. */
+  addPieceNear: (type: PieceType, nodeId: string) => void;
   movePiece: (id: string, x: number, y: number) => void;
   removePiece: (id: string) => void;
   clickPiece: (id: string) => void;
-  /** Open the held-back constraint popup (guided step 2), with the red shaking pipe. */
-  openPendingPopup: () => void;
+  /** Open the popup for the tier violation starting at this piece or on this pipe. */
+  openRulePopup: (match: { nodeId?: string; edgeId?: string }) => boolean;
   connect: (from: string, to: string) => void;
   closePopup: () => void;
   togglePopupWhy: () => void;
+  /** Open the suggestion popup for this piece, if the engine has one. */
+  openSuggestion: (nodeId: string) => boolean;
+  acceptSuggestion: () => void;
+  closeSuggestion: () => void;
   acceptRecommendation: () => void;
 
   setRightTab: (t: RightTab) => void;
@@ -124,7 +136,10 @@ export interface NatureActions {
   setQuestion: (q: string) => void;
   ask: () => Promise<void>;
 
+  /** Jump to a step, replaying the demo from scratch (step chips, Back). */
   goToStep: (n: number) => void;
+  /** Advance one step from the LIVE board (Next, accepting the step-2 recommendation). */
+  nextStep: () => void;
   startGuided: () => void;
   exitGuided: () => void;
   notify: (text: string, kind?: Toast["kind"]) => void;
@@ -141,10 +156,21 @@ function later(key: string, ms: number, fn: () => void): void {
 
 const firstPreset = engine.presets()[0];
 
-const noDemo = { demoStep: null, demoFocus: [] as string[], showWeakPoints: false, guided: false };
+const noDemo = {
+  demoStep: null, demoFocus: [] as string[], showWeakPoints: false, impactCallout: false, calloutBefore: null,
+  demoPanel: "impact" as DemoState["panel"], guided: false,
+};
+
+/** Tier violations are "soft": the pipe is laid (carrying nothing) and glows red until clicked. */
+export const SOFT_RULE = "tier-requirement";
+
+function findSoftRule(board: Board, match: { nodeId?: string; edgeId?: string }): RuleResult | null {
+  const hit = (r: RuleResult) => (match.edgeId !== undefined && r.edgeId === match.edgeId) || (match.nodeId !== undefined && r.from === match.nodeId);
+  return engine.evaluateRules(board).find((r) => r.ruleId === SOFT_RULE && hit(r)) ?? null;
+}
 
 const transient = {
-  selected: null, pending: null, popup: null, popupWhy: false, badPipe: null, shakeId: null, alertId: null, pendingPopup: null, flash: [] as string[],
+  selected: null, pending: null, popup: null, popupWhy: false, suggestion: null, badPipe: null, shakeId: null, flash: [] as string[],
   advisor: null, acceptedCards: [] as string[], previewCard: null, answer: null, detailKey: null,
 };
 
@@ -156,6 +182,36 @@ export const useNature = create<NatureStore>()((set, get) => {
   const setBoard = (board: Board, extra: Partial<NatureState> = {}) =>
     set((s) => ({ board, boardSize: Math.max(s.boardSize, boardSizeFor(board)), ...extra }));
   const values = () => withOverrides(get().overrides);
+  const clampStep = (n: number) => Math.max(0, Math.min(DEMO_STEPS.length - 1, n));
+
+  /** Show a demo state. Keeps the user's assumption edits; step popups wait for a click (glow). */
+  const applyDemo = (d: DemoState, step: number, before: Comparison | null) => {
+    set({
+      ...transient,
+      presetId: firstPreset.id,
+      scenarioName: firstPreset.name,
+      baseFile: firstPreset.file,
+      board: d.board,
+      boardSize: boardSizeFor(d.board),
+      settings: d.settings,
+      mode: d.mode,
+      leftOpen: true,
+      tool: "select",
+      rightTab: "impact",
+      demoStep: step,
+      demoFocus: d.focus,
+      demoPanel: d.panel,
+      showWeakPoints: d.showWeakPoints,
+      impactCallout: d.impactCallout,
+      calloutBefore: d.impactCallout ? before : null,
+      doNothing2050: false,
+      showWork: null,
+      drawerOpen: d.panel === "assumptions",
+      drawerFocus: null,
+    });
+    // advise() is heavy: run it once, on entering the step that asks for it.
+    if (d.runAdvisor) get().runAdvisor();
+  };
 
   return {
     presetId: firstPreset.id,
@@ -227,6 +283,15 @@ export const useNature = create<NatureStore>()((set, get) => {
       const res = addNode(s.board, type, s.boardSize, cell);
       setBoard(res.board, { selected: res.id, advisor: null });
     },
+    addPieceNear: (type, nodeId) => {
+      const s = get();
+      const anchor = s.board.nodes.find((n) => n.id === nodeId);
+      const cell = anchor ? findFreeCellNear(s.board, s.boardSize, anchor.x, anchor.y) : undefined;
+      const res = addNode(s.board, type, s.boardSize, cell);
+      const piped = autoPipe(res.board, new Set([res.id]), engine.checkConnection);
+      setBoard(piped.board, { selected: res.id, advisor: null });
+      flash(piped.added);
+    },
     movePiece: (id, x, y) => {
       const s = get();
       if (x < 0 || y < 0 || x >= s.boardSize || y >= s.boardSize) return;
@@ -246,12 +311,13 @@ export const useNature = create<NatureStore>()((set, get) => {
       const s = get();
       const node = s.board.nodes.find((n) => n.id === id);
       if (!node) return;
-      if (s.alertId === id && s.pendingPopup) return get().openPendingPopup();
       if (s.tool === "delete") return get().removePiece(id);
       if (s.tool === "pipe") {
         if (s.pending && s.pending !== id) return get().connect(s.pending, id);
         return set({ pending: s.pending === id ? null : id });
       }
+      if (get().openRulePopup({ nodeId: id })) return;
+      if (get().openSuggestion(id)) return;
       set({ selected: s.selected === id ? null : id });
     },
     connect: (from, to) => {
@@ -262,25 +328,53 @@ export const useNature = create<NatureStore>()((set, get) => {
         const res = addEdge(s.board, from, to);
         set({ board: res.board, pending: null, selected: null, advisor: null });
         flash([res.id]);
+        // Guided step 1: the presenter piped a desal plant into the data center by hand.
+        const fromType = s.board.nodes.find((n) => n.id === from)?.type;
+        if (s.guided && s.demoStep === 0 && to === DEMO_DC_ID && (fromType === "desal" || fromType === "harmony")) get().nextStep();
+        return;
+      }
+      if (result.ruleId === SOFT_RULE) {
+        // Lay the pipe anyway; it glows red (derived from the rules) until the user clicks it.
+        const res = addEdge(s.board, from, to);
+        set({ board: res.board, pending: null, selected: null, advisor: null, shakeId: to });
+        later("shake", SHAKE_MS, () => set({ shakeId: null }));
         return;
       }
       set({ pending: null, popup: result, popupWhy: false, badPipe: { from, to }, shakeId: to });
       later("shake", SHAKE_MS, () => set({ shakeId: null }));
       later("bad", BAD_PIPE_MS, () => set({ badPipe: null }));
     },
-    openPendingPopup: () => {
-      const p = get().pendingPopup;
-      if (!p) return;
-      const pipe = p.from && p.to ? { from: p.from, to: p.to } : null;
-      set({ popup: p, popupWhy: false, badPipe: pipe, shakeId: p.to ?? null });
+    openRulePopup: (match) => {
+      const rule = findSoftRule(get().board, match);
+      if (!rule) return false;
+      set({ popup: rule, popupWhy: false, badPipe: null, shakeId: rule.to ?? null, pending: null });
       later("shake", SHAKE_MS, () => set({ shakeId: null }));
+      return true;
     },
+    openSuggestion: (nodeId) => {
+      const s = get();
+      const hit = engine.suggestions(s.board, values(), s.settings).find((x) => x.nodeId === nodeId);
+      if (!hit) return false;
+      set({ suggestion: hit, pending: null, selected: null });
+      return true;
+    },
+    acceptSuggestion: () => {
+      const s = get();
+      if (!s.suggestion) return;
+      // Guided step 2: switching is the step-3 transition (impact callout).
+      if (s.guided && s.demoStep === 1) { set({ suggestion: null }); return get().nextStep(); }
+      const before = new Set(s.board.nodes.map((n) => `${n.id}:${n.type}`));
+      setBoard(s.suggestion.board, { suggestion: null, advisor: null });
+      const changed = s.suggestion.board.nodes.filter((n) => !before.has(`${n.id}:${n.type}`)).length;
+      get().notify(`${s.suggestion.title}: done${changed ? ` (${changed} piece${changed === 1 ? "" : "s"} changed)` : ""}.`);
+    },
+    closeSuggestion: () => set({ suggestion: null }),
     closePopup: () => set({ popup: null, popupWhy: false, badPipe: null }),
     togglePopupWhy: () => set((s) => ({ popupWhy: !s.popupWhy })),
     acceptRecommendation: () => {
       const s = get();
       if (!s.popup) return;
-      if (s.guided && s.demoStep === 1) return get().goToStep(2);
+      if (s.guided && s.demoStep === 1) return get().nextStep();
       const before = new Set(s.board.edges.map((e) => e.id));
       const board = engine.applyRecommendation(s.board, s.popup);
       setBoard(board, { popup: null, popupWhy: false, badPipe: null, mode: "build", advisor: null });
@@ -331,17 +425,21 @@ export const useNature = create<NatureStore>()((set, get) => {
     },
     acceptCard: (id) => {
       const s = get();
-      const card = id === "plan" ? s.advisor?.plan : s.advisor?.cards.find((c) => c.id === id);
+      // The engine's plan id is "plan:<pieces>", so look it up alongside the cards.
+      const all = [...(s.advisor?.plan ? [s.advisor.plan] : []), ...(s.advisor?.cards ?? [])];
+      const card = all.find((c) => c.id === id);
       if (!card) return;
       const res = mergeNewPieces(s.board, card.board, engine.checkConnection);
       setBoard(res.board, { acceptedCards: [...s.acceptedCards, id], previewCard: null });
       flash(res.edgeIds);
+      const n = res.nodeIds.length;
+      get().notify(n > 0 ? `Added ${card.title} (${n} piece${n === 1 ? "" : "s"}).` : `${card.title} is already on the board.`);
     },
     acceptAll: () => {
       const s = get();
       const plan = s.advisor?.plan;
       if (!plan) return;
-      get().acceptCard("plan");
+      get().acceptCard(plan.id);
       set((st) => ({ acceptedCards: [...st.acceptedCards, ...(st.advisor?.cards.filter((c) => c.pieces.every((t) => plan.pieces.includes(t))).map((c) => c.id) ?? [])] }));
     },
     setPreviewCard: (previewCard) => set({ previewCard }),
@@ -369,38 +467,19 @@ export const useNature = create<NatureStore>()((set, get) => {
     },
 
     goToStep: (n) => {
-      const step = Math.max(0, Math.min(DEMO_STEPS.length - 1, n));
-      const d = buildDemoState(step);
-      set({
-        ...transient,
-        presetId: firstPreset.id,
-        scenarioName: firstPreset.name,
-        baseFile: firstPreset.file,
-        board: d.board,
-        boardSize: boardSizeFor(d.board),
-        settings: d.settings,
-        overrides: {},
-        mode: d.mode,
-        leftOpen: true,
-        tool: "select",
-        rightTab: "impact",
-        // A step's popup waits for the user to click the glowing piece it starts from.
-        popup: null,
-        popupWhy: false,
-        badPipe: null,
-        shakeId: null,
-        alertId: d.popup?.from ?? null,
-        pendingPopup: d.popup,
-        demoStep: step,
-        demoFocus: d.focus,
-        showWeakPoints: d.showWeakPoints,
-        doNothing2050: false,
-        showWork: null,
-        drawerOpen: d.panel === "assumptions",
-        drawerFocus: null,
-      });
-      // advise() is heavy: run it once, on entering the step that asks for it.
-      if (d.runAdvisor) get().runAdvisor();
+      const step = clampStep(n);
+      const before = step > 0 ? demoStateAt(step - 1) : null;
+      applyDemo(demoStateAt(step), step, before ? engine.compare(before.board, values(), before.settings) : null);
+    },
+    nextStep: () => {
+      const s = get();
+      const current = s.demoStep ?? -1;
+      if (current >= DEMO_STEPS.length - 1) return;
+      const live: DemoState = {
+        board: s.board, settings: s.settings, popup: null, focus: s.demoFocus, panel: s.demoPanel, mode: s.mode,
+        showWeakPoints: s.showWeakPoints, impactCallout: s.impactCallout, runAdvisor: false,
+      };
+      applyDemo(demoNext(live, current + 1), current + 1, engine.compare(s.board, values(), s.settings));
     },
     startGuided: () => {
       set({ guided: true });

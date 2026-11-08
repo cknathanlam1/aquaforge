@@ -13,10 +13,11 @@ const DRAWER_W = 480;
 export function GuidedNarration() {
   const guided = useNature((s) => s.guided);
   const step = useNature((s) => s.demoStep);
-  const popupOpen = useNature((s) => s.popup !== null);
+  const popupOpen = useNature((s) => s.popup !== null || s.suggestion !== null);
   const drawerOpen = useNature((s) => s.drawerOpen);
   const leftOpen = useNature((s) => s.leftOpen);
-  const { goToStep, exitGuided } = useNature.getState();
+  // Next applies the step to the live board (keeps hand-built pieces); Back replays from scratch.
+  const { goToStep, nextStep, exitGuided } = useNature.getState();
   const comparison = useComparison();
   const fmt = useFmt();
   if (!guided || step === null || popupOpen) return null;
@@ -48,7 +49,7 @@ export function GuidedNarration() {
         {last ? (
           <button type="button" className="nbtn nbtn-sm nbtn-orange" onClick={exitGuided}>Finish</button>
         ) : (
-          <button type="button" className="nbtn nbtn-sm nbtn-orange" onClick={() => goToStep(step + 1)}>Next: {DEMO_STEPS[step + 1].short.split(" · ")[1]}</button>
+          <button type="button" className="nbtn nbtn-sm nbtn-orange" onClick={nextStep}>Next: {DEMO_STEPS[step + 1].short.split(" · ")[1]}</button>
         )}
         <button type="button" className="nbtn nbtn-link nbtn-sm ml-auto" onClick={exitGuided}>Exit demo</button>
       </div>

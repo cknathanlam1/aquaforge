@@ -2,6 +2,7 @@
 import { memo, useEffect, useMemo, useRef, useState } from "react";
 import { ASSUMPTION_KEYS, DEFAULT_ASSUMPTIONS, type AssumptionGroup, type AssumptionKey } from "@/lib/assumptions";
 import { useNature } from "@/lib/store";
+import { DesalCompare } from "./DesalCompare";
 import { ScenarioToggles } from "./impact/ScenarioToggles";
 import { StatusBadge } from "./ShowWork";
 import { Icon } from "./ui/Icon";
@@ -114,6 +115,7 @@ export function AssumptionsDrawer() {
             <div className="kicker mb-1.5">Scenario toggles</div>
             <ScenarioToggles />
           </section>
+          {!q && <DesalCompare />}
           {byGroup.map(({ group, keys }) => (
             <section key={group} className="pt-2">
               <h3 className="kicker sticky top-0 z-[1] m-0 border-b-[1.5px] border-[var(--ink)] bg-white py-1.5" style={{ color: "var(--color-text)" }}>{group}</h3>

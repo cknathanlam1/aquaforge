@@ -14,11 +14,29 @@ export interface PipeVisual {
   flash: boolean;
   bad?: { mx: number; my: number };
   rubber?: boolean;
+  /** A laid-but-invalid pipe (tier violation): pulses red with an X; click opens the popup. */
+  alert?: { mx: number; my: number; edgeId: string };
 }
 
 /** One pipe: ink casing, tier-colored core, animated white droplet dash; red shaking X when rejected. */
-export const BoardPipe = memo(function BoardPipe({ p, playing }: { p: PipeVisual; playing: boolean }) {
+interface PipeProps { p: PipeVisual; playing: boolean; onAlertClick?: (edgeId: string) => void }
+
+export const BoardPipe = memo(function BoardPipe({ p, playing, onAlertClick }: PipeProps) {
   const common = { fill: "none", strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  if (p.alert) {
+    const { mx: x, my: y, edgeId } = p.alert;
+    return (
+      <g style={{ cursor: "pointer" }} onClick={() => onAlertClick?.(edgeId)} onPointerDown={(e) => e.stopPropagation()} aria-hidden="true">
+        <path d={p.d} stroke="transparent" strokeWidth={26} {...common} />
+        <path d={p.d} stroke={C.ink} strokeWidth={14} {...common} />
+        <g style={{ animation: "pulse .7s ease infinite" }}>
+          <path d={p.d} stroke={C.red} strokeWidth={12} strokeDasharray="10 8" {...common} />
+        </g>
+        <circle cx={x} cy={y} r={14} fill={C.red} stroke={C.ink} strokeWidth={3} />
+        <path d={`M${x - 6} ${y - 6} L${x + 6} ${y + 6} M${x + 6} ${y - 6} L${x - 6} ${y + 6}`} stroke="#fff" strokeWidth={4} strokeLinecap="round" />
+      </g>
+    );
+  }
   if (p.bad) {
     const { mx: x, my: y } = p.bad;
     return (

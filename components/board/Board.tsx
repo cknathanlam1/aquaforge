@@ -1,10 +1,10 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { BoardNode, EdgeResult, PieceType } from "@/lib/contract";
-import { useNature } from "@/lib/store";
+import { SOFT_RULE, useNature } from "@/lib/store";
 import { boardGeom, cellCenter, pipePath, proj, pts, tileAt, type BoardGeom, type Pt } from "@/lib/ui/iso";
 import { BOARD_COLORS as C, TIER_COLORS } from "@/lib/ui/pieceArt";
-import { useCatalog, useComparison, useWeakPoints } from "../hooks";
+import { useCatalog, useComparison, useSuggestions, useWeakPoints } from "../hooks";
 import { DRAG_MIME } from "../Palette";
 import { BoardOverlays } from "./BoardOverlays";
 import { BoardPiece, type PieceVisual } from "./BoardPiece";
@@ -59,7 +59,6 @@ export function Board() {
   const pending = useNature((s) => s.pending);
   const badPipe = useNature((s) => s.badPipe);
   const shakeId = useNature((s) => s.shakeId);
-  const alertId = useNature((s) => s.alertId);
   const flashIds = useNature((s) => s.flash);
   const zoom = useNature((s) => s.zoom);
   const pan = useNature((s) => s.pan);
@@ -78,6 +77,19 @@ export function Board() {
     return m;
   }, [weakPoints]);
   const comparison = useComparison();
+  const suggestions = useSuggestions();
+  const suggestNodes = useMemo(() => new Set(suggestions.map((x) => x.nodeId)), [suggestions]);
+  // Every tier violation glows: its source piece gets the red "!", its pipe pulses red.
+  const softRules = useMemo(() => comparison.rules.filter((r) => r.ruleId === SOFT_RULE && !r.valid), [comparison.rules]);
+  const alertNodes = useMemo(() => new Set(softRules.map((r) => r.from).filter((x): x is string => !!x)), [softRules]);
+  const alertEdges = useMemo(() => {
+    const ids = new Set<string>();
+    for (const r of softRules) {
+      if (r.edgeId) ids.add(r.edgeId);
+      else for (const e of board.edges) if (e.from === r.from && e.to === r.to) ids.add(e.id);
+    }
+    return ids;
+  }, [softRules, board.edges]);
   const geom = useMemo(() => boardGeom(size), [size]);
   const slab = useStaticSlab(geom);
 
@@ -106,7 +118,8 @@ export function Board() {
 
   const ghosts: BoardNode[] = useMemo(() => {
     if (mode !== "advisor" || !advisor) return [];
-    const card = previewCard ? (previewCard === "plan" ? advisor.plan : advisor.cards.find((c) => c.id === previewCard)) : accepted.includes("plan") ? null : advisor.plan;
+    const all = [...(advisor.plan ? [advisor.plan] : []), ...advisor.cards];
+    const card = previewCard ? all.find((c) => c.id === previewCard) : advisor.plan && !accepted.includes(advisor.plan.id) ? advisor.plan : null;
     if (!card) return [];
     const known = new Set(board.nodes.map((n) => n.id));
     const taken = (x: number, y: number) => board.nodes.some((n) => n.x === x && n.y === y);
@@ -127,9 +140,10 @@ export function Board() {
       demoFocus: demoFocus.includes(node.id),
       weak: weakByNode.get(node.id) ?? null,
       shaking: shakeId === node.id,
-      alert: alertId === node.id,
+      alert: alertNodes.has(node.id),
+      suggest: !alertNodes.has(node.id) && suggestNodes.has(node.id),
     }));
-  }, [board.nodes, ghosts, catalog, comparison, stressNodes, selected, pending, focusedId, shakeId, alertId, demoFocus, weakByNode]);
+  }, [board.nodes, ghosts, catalog, comparison, stressNodes, selected, pending, focusedId, shakeId, alertNodes, suggestNodes, demoFocus, weakByNode]);
 
   const pipes: PipeVisual[] = useMemo(() => {
     const byId = new Map(board.nodes.map((n) => [n.id, n]));
@@ -139,7 +153,12 @@ export function Board() {
       if (!a || !b) continue;
       const r = comparison.design.normalDay.edges[e.id];
       const flow = r?.flow ?? 0;
-      list.push({ key: e.id, d: pipePath(geom, a, b).d, ...pipeStyle(r), flow: r?.valid !== false && flow > 0, speed: flowSeconds(flow), width: 8, flash: flashIds.includes(e.id) });
+      const path = pipePath(geom, a, b);
+      if (alertEdges.has(e.id)) {
+        list.push({ key: e.id, d: path.d, color: C.red, flow: false, speed: 1, width: 8, flash: false, alert: { mx: path.mid[0], my: path.mid[1], edgeId: e.id } });
+        continue;
+      }
+      list.push({ key: e.id, d: path.d, ...pipeStyle(r), flow: r?.valid !== false && flow > 0, speed: flowSeconds(flow), width: 8, flash: flashIds.includes(e.id) });
     }
     if (badPipe) {
       const a = byId.get(badPipe.from), b = byId.get(badPipe.to);
@@ -156,7 +175,7 @@ export function Board() {
       }
     }
     return list;
-  }, [board, comparison, geom, flashIds, badPipe, rubber, pending]);
+  }, [board, comparison, geom, flashIds, badPipe, rubber, pending, alertEdges]);
 
   const onSvgPointerDown = (e: React.PointerEvent) => {
     moved.current = false;
@@ -215,7 +234,7 @@ export function Board() {
     if (node.ghost) {
       const st = store();
       if (st.previewCard) st.acceptCard(st.previewCard);
-      else if (st.advisor?.plan) st.acceptCard("plan");
+      else if (st.advisor?.plan) st.acceptCard(st.advisor.plan.id);
       return;
     }
     store().clickPiece(node.id);
@@ -234,6 +253,11 @@ export function Board() {
     }
     if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); st.removePiece(node.id); return; }
     if (e.key === "Escape") useNature.setState({ selected: null, pending: null });
+  }, [store]);
+
+  const onAlertPipeClick = useCallback((edgeId: string) => {
+    moved.current = false;
+    store().openRulePopup({ edgeId });
   }, [store]);
 
   const onTileClick = (x: number, y: number) => {
@@ -278,7 +302,7 @@ export function Board() {
           {tool === "select" && selected && slab.tiles.map((t) => (
             <polygon key={`${t.x}-${t.y}`} points={t.pts} fill="transparent" style={{ cursor: "pointer" }} onClick={() => onTileClick(t.x, t.y)} />
           ))}
-          {pipes.map((p) => <BoardPipe key={p.key} p={p} playing={playing} />)}
+          {pipes.map((p) => <BoardPipe key={p.key} p={p} playing={playing} onAlertClick={onAlertPipeClick} />)}
           {visuals.map((v) => (
             <BoardPiece key={v.node.id} geom={geom} v={v} layer="body" onPointerDown={onPiecePointerDown} onKeyDown={onPieceKey} onFocus={setFocusedId} onClick={onPieceClick} />
           ))}

@@ -2,26 +2,55 @@
 import { SCENARIO_LABELS } from "@/lib/contract";
 import { useNature } from "@/lib/store";
 import { fmtNumber } from "@/lib/ui/format";
-import { useComparison, useFmt } from "../hooks";
+import { useCatalog, useComparison, useFmt } from "../hooks";
 import { Corners, Icon } from "../ui/Icon";
 import { InfoButton } from "../ui/InfoButton";
 import { CostChart } from "./CostChart";
 import { MetricCard, SubMetric, useHighlight } from "./MetricCard";
 import { RiskGauge } from "./RiskGauge";
 import { WeakPoints } from "./WeakPoints";
+import { ImpactCallout } from "./ImpactCallout";
+import { offlineMetric } from "./offline";
 
 const POS = "var(--green-deep)";
 const NEG = "var(--red-deep)";
 const capexSub = (n: number) => (n === 0 ? "nothing new built" : `${n} new piece${n === 1 ? "" : "s"}`);
 const signColor =(v: number | null) => (v === null || v === 0 ? undefined : v > 0 ? POS : NEG);
 
+/** While any building is offline, savings vs. a fully supplied baseline are meaningless: show the hourly loss instead. */
+function OfflineHero() {
+  const c = useComparison();
+  const board = useNature((s) => s.board);
+  const catalog = useCatalog();
+  const fmt = useFmt();
+  const metric = offlineMetric(c, board, catalog);
+  if ((metric.value ?? 0) <= 0) return null;
+  return (
+    <div className="blueprint bp-card" style={{ borderWidth: 2.5, padding: "10px 12px", background: "var(--red-tint)", borderColor: "var(--red)" }}>
+      <Corners />
+      <div className="flex items-center justify-between">
+        <span className="kicker" style={{ color: "var(--red-deep)" }}>Production offline</span>
+        <InfoButton metrics={[metric]} />
+      </div>
+      <div className="heading text-[40px] leading-none text-[var(--red-deep)]">
+        {fmt.money(metric.value ?? 0)}<span className="ml-1 text-[18px]">/hour lost</span>
+      </div>
+      <div className="mt-1 text-[12.5px]">{metric.inputs.length === 1 ? metric.inputs[0].label.replace(/, lost per hour$/, "") : `${metric.inputs.length} buildings without enough water`}. Connect a water source to bring it online.</div>
+    </div>
+  );
+}
+
 function SavingsHero() {
-  const { metrics: m } = useComparison();
+  const c = useComparison();
+  const board = useNature((s) => s.board);
+  const catalog = useCatalog();
+  const m = c.metrics;
   const fmt = useFmt();
   const openDetail = useNature((s) => s.openDetail);
   const [hl, ref] = useHighlight("netAnnualSavings");
   const [hl2] = useHighlight("riskAdjustedSavings");
   const net = m.netAnnualSavings;
+  if ((offlineMetric(c, board, catalog).value ?? 0) > 0) return <OfflineHero />;
   return (
     <div ref={ref} className={`blueprint bp-card is-hit ${hl || hl2 ? "is-highlight" : ""}`} style={{ borderWidth: 2.5, padding: "10px 12px" }}>
       <Corners />
@@ -84,6 +113,7 @@ export function Dashboard() {
       <div className="kicker">Impact · tap a card for details</div>
       <WeakPoints />
       <SavingsHero />
+      <ImpactCallout />
       <DoNothingHero />
       <div className="grid grid-cols-2 gap-2.5">
         <MetricCard metricKey="payback" metric={m.payback} sub={m.payback.value === null ? "needs capex + savings" : `on ${fmt.money(m.capex.value ?? 0)} capex`} />

@@ -8,6 +8,7 @@ import { AssumptionsDrawer } from "./AssumptionsDrawer";
 import { Board } from "./board/Board";
 import { BottomBar } from "./BottomBar";
 import { ConstraintPopup } from "./ConstraintPopup";
+import { SuggestionPopup } from "./SuggestionPopup";
 import { Header } from "./Header";
 import { ImpactPanel } from "./impact/ImpactPanel";
 import { Palette } from "./Palette";
@@ -67,6 +68,7 @@ export function NatureApp() {
         </div>
       )}
       <ConstraintPopup />
+      <SuggestionPopup />
       <ShowWorkDialog />
       <AssumptionsDrawer />
       <Toast />

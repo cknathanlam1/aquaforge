@@ -55,6 +55,21 @@ function nextId(ids: string[], prefix: string): string {
 export const nextNodeId = (board: Board) => nextId(board.nodes.map((n) => n.id), "n");
 export const nextEdgeId = (board: Board) => nextId(board.edges.map((e) => e.id), "e");
 
+/** Nearest free cell to (x, y), searching outward ring by ring. */
+export function findFreeCellNear(board: Board, n: number, x: number, y: number): Cell {
+  const free = (c: Cell) => c[0] >= 0 && c[1] >= 0 && c[0] < n && c[1] < n && !board.nodes.some((p) => p.x === c[0] && p.y === c[1]);
+  for (let r = 1; r < n; r++) {
+    for (let dx = -r; dx <= r; dx++) {
+      for (let dy = -r; dy <= r; dy++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const c: Cell = [x + dx, y + dy];
+        if (free(c)) return c;
+      }
+    }
+  }
+  return findFreeCell(board, n);
+}
+
 export function addNode(board: Board, type: PieceType, n: number, cell?: Cell, opts?: Partial<BoardNode>): { board: Board; id: string } {
   const id = nextNodeId(board);
   const [x, y] = cell && !board.nodes.some((p) => p.x === cell[0] && p.y === cell[1]) ? cell : findFreeCell(board, n, PREFERRED_CELL[type]);
@@ -136,7 +151,9 @@ export function addPieces(board: Board, types: PieceType[], check: CheckFn, n = 
 /** Merge pieces/pipes from `source` that aren't on `target` (by type), re-placing on cell collisions. */
 export function mergeNewPieces(target: Board, source: Board, check: CheckFn): { board: Board; nodeIds: string[]; edgeIds: string[] } {
   const known = new Set(target.nodes.map((n) => n.id));
-  const fresh = source.nodes.filter((n) => !known.has(n.id) && !n.ghost && !target.nodes.some((t) => t.type === n.type && !t.existing && !t.ghost));
+  // Every node the card added (ids absent from the live board). A card may legitimately add a
+  // second piece of a type already on the board, so don't dedupe by type.
+  const fresh = source.nodes.filter((n) => !known.has(n.id) && !n.ghost);
   let next = target;
   const n = boardSizeFor(target);
   const idMap = new Map<string, string>();

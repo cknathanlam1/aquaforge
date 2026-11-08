@@ -17,7 +17,7 @@ export function AdvisorPanel() {
   const asking = useNature((s) => s.asking);
   const { runAdvisor, setQuestion, ask, acceptAll } = useNature.getState();
   const plan = advisor?.plan;
-  const planDone = plan ? accepted.includes("plan") : true;
+  const planDone = plan ? accepted.includes(plan.id) : true;
 
   return (
     <div className="flex flex-col gap-3 p-3.5">

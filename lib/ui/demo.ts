@@ -1,10 +1,10 @@
 /**
- * Guided demo: wraps the engine's five deterministic steps (lib/demo.ts via lib/engine.ts) with
- * UI-only labels and the metric each step highlights. Copy here carries no numbers; the narration
- * card shows the live engine value of the highlighted metric.
+ * Guided demo: UI labels and the metric each engine step (lib/demo.ts via lib/engine.ts)
+ * highlights. Copy here carries no numbers; the narration card and the impact callout show live
+ * engine values.
  */
 import type { Comparison } from "@/lib/contract";
-import { DEMO_STEPS as ENGINE_STEPS, demoStateAt, type DemoState } from "@/lib/engine";
+import { DEMO_STEPS as ENGINE_STEPS } from "@/lib/engine";
 
 export type MetricKey = keyof Comparison["metrics"];
 
@@ -16,9 +16,9 @@ export interface DemoStep {
 }
 
 const UI: Record<string, { short: string; highlight: MetricKey | null }> = {
-  a: { short: "1 · Weak points", highlight: "costOfDoingNothing" },
-  b: { short: "2 · River → Fab", highlight: null },
-  c: { short: "3 · Desalination", highlight: "netAnnualSavings" },
+  a: { short: "1 · No water", highlight: null },
+  b: { short: "2 · Regular desal", highlight: "netAnnualSavings" },
+  c: { short: "3 · Harmony", highlight: "netAnnualSavings" },
   d: { short: "4 · Assumptions", highlight: null },
   e: { short: "5 · AI advisor", highlight: "riskAdjustedSavings" },
 };
@@ -29,7 +29,3 @@ export const DEMO_STEPS: DemoStep[] = ENGINE_STEPS.map((s) => ({
   text: s.narration,
   highlight: UI[s.id]?.highlight ?? null,
 }));
-
-export function buildDemoState(step: number): DemoState {
-  return demoStateAt(step);
-}

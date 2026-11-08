@@ -43,6 +43,8 @@ export const PIECE_ART: Record<PieceType, PieceArt> = {
   rain: { code: "RAIN", sym: "∴", color: "#9fd3ea", spec: [[0.8, 22, 0], [0.55, 10, 22, 0, 0, "#bfe6f4"]] },
   seawater: { code: "SEA", sym: "≋", color: "#3f7fae", spec: [[0.9, 14, 0], [0.4, 22, 14, -16, 6, "#2f6a95"]] },
   desal: { code: "DESAL", sym: "◒", color: "#3d95c9", spec: [[1, 36, 0], [0.5, 30, 36, -14, 0], [0.22, 12, 0, 44, 22, "#9a7a58"]] },
+  // Harmony: same plant silhouette as desal, in a green accent so it reads as the better option.
+  harmony: { code: "HARMONY", sym: "◑", color: "#3fb58a", spec: [[1, 32, 0], [0.5, 26, 32, -14, 0, "#bff0dc"], [0.22, 12, 0, 44, 22, "#9a7a58"]] },
   nearby: { code: "SHARE", sym: "↻", color: "#7fb8d8", spec: [[0.9, 30, 0], [0.4, 22, 30, -18, 0], [0.3, 12, 30, 20, 8]] },
 
   filter: { code: "FILTER", sym: "▤", color: "#8fd4c6", spec: [[0.85, 26, 0], [0.5, 8, 26, 0, 0, "#e9f6f2"]] },
@@ -61,6 +63,7 @@ export const PIECE_ART: Record<PieceType, PieceArt> = {
   chem: { code: "CHEM", sym: "▲", color: "#c7a79a", spec: [[0.4, 24, 0, -16, -6, "#c47a6a"], [0.4, 24, 0, 16, 6, "#c47a6a"]] },
 
   server: { code: "SERVER", sym: "▤", color: "#9bb0c4", spec: [[0.8, 40, 0]] },
+  datacenter: { code: "DC", sym: "▥", color: "#8fa6bf", spec: [[1, 48, 0], [0.55, 8, 48, 0, 0, "#cfe0ee"]] },
   server2: { code: "SERVER+", sym: "▥", color: "#8aa0b8", spec: [[1, 56, 0]] },
   tower: { code: "COOLING", sym: "❋", color: "#8fb4cc", spec: [[0.85, 26, 0], [0.5, 24, 26, 0, 0, "#a9c8da"]] },
   chiller: { code: "CHILL", sym: "✱", color: "#a9c7d6", spec: [[0.9, 24, 0], [0.35, 14, 24, -18, 0, "#d9e8ef"], [0.35, 14, 24, 18, 0, "#d9e8ef"]] },

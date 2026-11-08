@@ -18,16 +18,22 @@ export interface PieceVisual {
   demoFocus: boolean;
   /** Flagged by engine.weakPoints() (guided step 1). */
   weak: "high" | "medium" | null;
-  /** Guided step 2: glows red with a "!" marker; clicking it opens the constraint popup. */
+  /** Source of a tier violation: glows red with a "!" marker; clicking it opens the popup. */
   alert: boolean;
+  /** engine.suggestions() has a better option for this piece: friendly teal pulse + "↑" marker. */
+  suggest: boolean;
 }
 
 interface Badge { text: string; dot: string; bg: string }
 
+const SUGGEST = "#17a37a";
+const SUGGEST_TINT = "#e3f7ef";
+
 function badgeFor(v: PieceVisual): Badge | null {
   const { node, info, result } = v;
   if (node.ghost) return { text: "AI suggests", dot: C.orange, bg: C.ghostTile };
-  if (v.alert) return { text: "Click to connect to the fab", dot: C.red, bg: C.redTint };
+  if (v.alert) return { text: "Won't work · click to see why", dot: C.red, bg: C.redTint };
+  if (v.suggest) return { text: "Better option available", dot: SUGGEST, bg: SUGGEST_TINT };
   if (v.weak) return { text: v.weak === "high" ? "⚠ Weak point" : "⚠ Watch", dot: v.weak === "high" ? C.red : C.orange, bg: v.weak === "high" ? C.redTint : C.ghostTile };
   if (v.atRisk) return { text: "Supply at risk!", dot: C.red, bg: C.redTint };
   if (info.outputTier) {
@@ -76,6 +82,7 @@ export const BoardPiece = memo(function BoardPiece({ geom, v, layer, onPointerDo
       <g className={v.shaking ? "anim-shake" : undefined} style={{ pointerEvents: "none" }} aria-hidden="true">
         <PieceLabels cx={cx} cy={cy} top={top} symBg={node.ghost ? C.ghostTile : shade(base, 0.7)} sym={art.sym} name={info.name} labelW={labelW} badge={badge} badgeW={badgeW} badgeY={badgeY} />
         {v.alert && <AlertMarker cx={cx + badgeW / 2 + 22} cy={badgeY + 11} onClick={() => onClick(node)} />}
+        {v.suggest && <AlertMarker cx={cx + badgeW / 2 + 22} cy={badgeY + 11} onClick={() => onClick(node)} glyph="↑" color={SUGGEST} />}
       </g>
     );
   }
@@ -98,6 +105,9 @@ export const BoardPiece = memo(function BoardPiece({ geom, v, layer, onPointerDo
       {v.alert && (
         <polygon points={pts([[cx, cy - TILE_H - 8], [cx + TILE_W + 12, cy], [cx, cy + TILE_H + 8], [cx - TILE_W - 12, cy]])} fill={C.red} fillOpacity={0.18} stroke={C.red} strokeWidth={4} style={{ animation: "pulse 0.9s ease infinite" }} />
       )}
+      {v.suggest && (
+        <polygon points={pts([[cx, cy - TILE_H - 8], [cx + TILE_W + 12, cy], [cx, cy + TILE_H + 8], [cx - TILE_W - 12, cy]])} fill={SUGGEST} fillOpacity={0.16} stroke={SUGGEST} strokeWidth={4} strokeDasharray="12 6" style={{ animation: "pulse 1.6s ease infinite" }} />
+      )}
       {v.weak && (
         <polygon points={pts([[cx, cy - TILE_H - 8], [cx + TILE_W + 12, cy], [cx, cy + TILE_H + 8], [cx - TILE_W - 12, cy]])} fill={v.weak === "high" ? C.red : C.orange} fillOpacity={0.14} stroke={v.weak === "high" ? C.red : C.orange} strokeWidth={4} strokeDasharray="10 6" style={{ animation: "pulse 1.2s ease infinite" }} />
       )}
@@ -118,11 +128,11 @@ export const BoardPiece = memo(function BoardPiece({ geom, v, layer, onPointerDo
 });
 
 /** Red "!" bubble above an alerted piece. Clickable even though the label layer ignores pointers. */
-function AlertMarker({ cx, cy, onClick }: { cx: number; cy: number; onClick: () => void }) {
+function AlertMarker({ cx, cy, onClick, glyph = "!", color = C.red }: { cx: number; cy: number; onClick: () => void; glyph?: string; color?: string }) {
   return (
     <g className="anim-bob" style={{ pointerEvents: "auto", cursor: "pointer" }} onClick={onClick} role="presentation">
-      <circle cx={cx} cy={cy} r={15} fill={C.red} stroke={C.ink} strokeWidth={3} />
-      <text x={cx} y={cy + 7} textAnchor="middle" fill="#fff" style={{ font: "800 21px/1 var(--font-body)" }}>!</text>
+      <circle cx={cx} cy={cy} r={15} fill={color} stroke={C.ink} strokeWidth={3} />
+      <text x={cx} y={cy + 7} textAnchor="middle" fill="#fff" style={{ font: "800 21px/1 var(--font-body)" }}>{glyph}</text>
     </g>
   );
 }
